@@ -3,12 +3,13 @@
     public enum StatusCode
     {
         //Lesson
-        LessonNotFound = 0,
+        LessonNotFound = 10,
+        TimeIsBusy = 11,
 
         //Class
-        ClassNotFound = 1,
+        ClassNotFound = 20,
 
         OK = 200,
-        IternalServerError = 505
+        InternalServerError = 505
     }
 }

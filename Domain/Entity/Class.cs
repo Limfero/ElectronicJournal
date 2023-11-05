@@ -6,8 +6,8 @@
 
         public string Name { get; set; }
 
-        public List<Lesson> Lessons { get; set; }
+        public List<Lesson> Lessons { get; set; } = new();
 
-        public List<Student> Students { get; set; }
+        public List<Student> Students { get; set; } = new();
     }
 }

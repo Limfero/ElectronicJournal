@@ -15,6 +15,8 @@ namespace ElectronicJournal.Domain.Response
     {
         T Data { get; set; }
 
+        string Description { get; set; }
+
         StatusCode StatusCode { get; set; }
     }
 }

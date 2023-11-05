@@ -17,7 +17,7 @@
         public int IdClass { get; set; }
         public Class? Class { get; set; }
 
-        public List<Score> Scores { get; set; }
+        public List<Score> Scores { get; set; } = new();
 
 
     }

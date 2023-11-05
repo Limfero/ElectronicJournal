@@ -17,8 +17,8 @@ namespace ElectronicJournal.Domain.Entity
         public string Password { get; set; }
 
         public Role Role { get; set; }
-        public List<Lesson> Lessons { get; set; }
+        public List<Lesson> Lessons { get; set; } = new();
 
-        public List<Subject> Subjects { get; set; }
+        public List<Subject> Subjects { get; set; } = new();
     }
 }

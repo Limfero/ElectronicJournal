@@ -8,8 +8,8 @@
 
         public string Description { get; set; }
 
-        public List<Teacher> Teachers { get; set; }
+        public List<Teacher> Teachers { get; set; } = new();
 
-        public List<Lesson> Lessons { get; set; }
+        public List<Lesson> Lessons { get; set; } = new();
     }
 }

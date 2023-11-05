@@ -1,5 +1,4 @@
-﻿using ElectronicJournal.DAL;
-using ElectronicJournal.DAL.Interfaces;
+﻿using ElectronicJournal.DAL.Interfaces;
 using ElectronicJournal.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 

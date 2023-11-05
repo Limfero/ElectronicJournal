@@ -2,9 +2,9 @@
 using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Domain.Enum;
 using ElectronicJournal.Domain.Response;
+using ElectronicJournal.Domain.ViewModels.Lesson;
 using ElectronicJournal.Service.Interfaces;
 using System.Globalization;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ElectronicJournal.Service.Implementations
 {
@@ -27,7 +27,7 @@ namespace ElectronicJournal.Service.Implementations
 
                 foreach (var day in daysOfWeek)
                 {
-                    var response = await _lessonRepository.GetByClassAndDateAsync(idClass, date);
+                    var response = await _lessonRepository.GetByClassAndDateAsync(idClass, day);
 
                     foreach (var lesson in response)
                         weeklyLessons[lesson.Date].Add(lesson);
@@ -45,8 +45,8 @@ namespace ElectronicJournal.Service.Implementations
             {
                 return new BaseResponse<Dictionary<DateOnly, List<Lesson>>>()
                 {
-                    Description = $"[GetLessonsOfDateAndClass] - {ex.Message}",
-                    StatusCode = StatusCode.IternalServerError
+                    Description = $"[LessonService.GetLessonsOfDateAndClass] - {ex.Message}",
+                    StatusCode = StatusCode.InternalServerError
                 };
             }
         }
@@ -78,8 +78,60 @@ namespace ElectronicJournal.Service.Implementations
             {
                 return new BaseResponse<List<Lesson>>()
                 {
-                    Description = $"[GetLessonsOfDateAndClass] - {ex.Message}",
-                    StatusCode = StatusCode.IternalServerError
+                    Description = $"[LessonService.GetLessonsOfDateAndClass] - {ex.Message}",
+                    StatusCode = StatusCode.InternalServerError
+                };
+            }
+        }
+
+        public async Task<IBaseResponse<Lesson>> CreateLesson(LessonViewModel model)
+        {
+            try
+            {
+                var timeIntervalsOfLesson =  _lessonRepository.GetAll()
+                    .Where(lesson => lesson.IdClass == model.IdClass)
+                    .Where(lesson => lesson.Date == model.Date)
+                    .ToDictionary(lesson => lesson.StartTime, lesson => lesson.EndTime);
+
+                foreach(var timeInterval in timeIntervalsOfLesson)
+                {
+                    if (model.StartTime >= timeInterval.Key && model.StartTime <= timeInterval.Value)
+                    {
+                        return new BaseResponse<Lesson>()
+                        {
+                            Description = "В это время уже идет урок",
+                            StatusCode = StatusCode.TimeIsBusy
+                        };
+                    }
+                }
+
+                var lesson = new Lesson()
+                {
+                    StartTime = model.StartTime,
+                    EndTime = model.EndTime,
+                    IdClass = model.IdClass,
+                    Date = model.Date,
+                    ClassRoom = model.ClassRoom,
+                    Description = model.Description,
+                    IdSubject = model.IdSubject,
+                    IdTeacher = model.IdTeacher  
+                };
+
+                await _lessonRepository.CreateAsync(lesson);
+
+                return new BaseResponse<Lesson>()
+                {
+                    Description = "Урок был создан",
+                    StatusCode = StatusCode.OK
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<Lesson>()
+                {
+                    Description = $"[LessonService.CreateLesson] - {ex.Message}",
+                    StatusCode = StatusCode.InternalServerError
                 };
             }
         }
