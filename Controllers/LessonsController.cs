@@ -1,18 +1,17 @@
 ﻿using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Domain.ViewModels.Lesson;
 using ElectronicJournal.Service.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ElectronicJournal.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LessonController : ControllerBase
+    public class LessonsController : ControllerBase
     {
         private readonly ILessonService _lessonService;
 
-        public LessonController(ILessonService lessonService)
+        public LessonsController(ILessonService lessonService)
         {
             _lessonService = lessonService;
         }

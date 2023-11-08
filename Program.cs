@@ -14,6 +14,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 builder.Services.AddScoped<ILessonService, LessonService>();
 
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<IClassService, ClassService>();
+
 var connectionString = builder.Configuration.GetConnectionString("MSSQL");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

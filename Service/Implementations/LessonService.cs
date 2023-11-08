@@ -88,12 +88,12 @@ namespace ElectronicJournal.Service.Implementations
         {
             try
             {
-                var timeIntervalsOfLesson =  _lessonRepository.GetAll()
+                var timeIntervalsOfLesson = _lessonRepository.GetAll()
                     .Where(lesson => lesson.IdClass == model.IdClass)
                     .Where(lesson => lesson.Date == model.Date)
                     .ToDictionary(lesson => lesson.StartTime, lesson => lesson.EndTime);
 
-                foreach(var timeInterval in timeIntervalsOfLesson)
+                foreach (var timeInterval in timeIntervalsOfLesson)
                 {
                     if (model.StartTime >= timeInterval.Key && model.StartTime <= timeInterval.Value)
                     {
@@ -114,10 +114,19 @@ namespace ElectronicJournal.Service.Implementations
                     ClassRoom = model.ClassRoom,
                     Description = model.Description,
                     IdSubject = model.IdSubject,
-                    IdTeacher = model.IdTeacher  
+                    IdTeacher = model.IdTeacher
                 };
 
-                await _lessonRepository.CreateAsync(lesson);
+                var responseLesson = await _lessonRepository.CreateAsync(lesson);
+
+                if (responseLesson.Class == null)
+                {
+                    return new BaseResponse<Lesson>()
+                    {
+                        Description = $"Урок не был создан: {responseLesson.Description}",
+                        StatusCode = StatusCode.LessonNotCreated
+                    };
+                } 
 
                 return new BaseResponse<Lesson>()
                 {

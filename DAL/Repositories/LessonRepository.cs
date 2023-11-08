@@ -4,40 +4,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ElectronicJournal.DAL.Repositories
 {
-    public class LessonRepository : ILessonRepository
+    public class LessonRepository : BaseRepository<Lesson>, ILessonRepository
     {
-        protected readonly ApplicationDbContext _dbContext;
-
-        public LessonRepository(ApplicationDbContext dbContext)
+        public LessonRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
-            _dbContext = dbContext;
         }
 
-        public async Task<Lesson> CreateAsync(Lesson entity)
+        public override async Task<Lesson> CreateAsync(Lesson entity)
         {
-            await _dbContext.AddAsync(entity);
-            await _dbContext.SaveChangesAsync();
+            try
+            {
+                _dbContext.Teachers.FirstOrDefault(teacher => teacher.Id == entity.IdTeacher).Lessons.Add(entity);
+                _dbContext.Classes.FirstOrDefault(c => c.Id == entity.IdClass).Lessons.Add(entity);
+                _dbContext.Subjects.FirstOrDefault(subject => subject.Id == entity.IdSubject).Lessons.Add(entity);
 
-            return entity;
-        }
+                entity.Teacher = _dbContext.Teachers.FirstOrDefault(teacher => teacher.Id == entity.IdTeacher);
+                entity.Subject = _dbContext.Subjects.FirstOrDefault(subject => subject.Id == entity.IdSubject);
+                entity.Class = _dbContext.Classes.FirstOrDefault(c => c.Id == entity.IdClass);
 
-        public IQueryable<Lesson> GetAll()
-        {
-            return _dbContext.Set<Lesson>();
-        }
-
-        public async Task<Lesson> RemoveAsync(Lesson entity)
-        {
-            _dbContext.Remove(entity);
-            await _dbContext.SaveChangesAsync();
-
-            return entity;
-        }
-
-        public async Task<Lesson> UpdateAsync(Lesson entity)
-        {
-            _dbContext.Update(entity);
-            await _dbContext.SaveChangesAsync();
+                await _dbContext.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return new Lesson() { Description = ex.Message };
+            }
 
             return entity;
         }

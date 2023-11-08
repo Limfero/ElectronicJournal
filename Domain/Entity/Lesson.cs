@@ -15,7 +15,7 @@
         public string Description { get; set; }
 
         public int IdClass { get; set; }
-        public Class Class { get; set; }
+        public Class? Class { get; set; }
 
         public int IdTeacher { get; set; }
         public Teacher? Teacher { get; set; }

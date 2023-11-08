@@ -2,7 +2,7 @@
 
 namespace ElectronicJournal.DAL.Repositories
 {
-    public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : class
+    public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : class
     {
         protected readonly ApplicationDbContext _dbContext;
 
@@ -11,7 +11,7 @@ namespace ElectronicJournal.DAL.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<TEntity> CreateAsync(TEntity entity)
+        public virtual async Task<TEntity> CreateAsync(TEntity entity)
         {
             await _dbContext.AddAsync(entity);
             await _dbContext.SaveChangesAsync();
