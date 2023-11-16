@@ -11,6 +11,14 @@ namespace ElectronicJournal.DAL.Repositories
             _dbContext = dbContext;
         }
 
+        public virtual async Task<List<TEntity>> CreateRangeAsync(List<TEntity> entities)
+        {
+            await _dbContext.AddRangeAsync(entities);
+            await _dbContext.SaveChangesAsync();
+
+            return entities;
+        }
+
         public virtual async Task<TEntity> CreateAsync(TEntity entity)
         {
             await _dbContext.AddAsync(entity);
@@ -19,12 +27,12 @@ namespace ElectronicJournal.DAL.Repositories
             return entity;
         }
 
-        public IQueryable<TEntity> GetAll()
+        public virtual IQueryable<TEntity> GetAll()
         {
             return _dbContext.Set<TEntity>();
         }
 
-        public async Task<TEntity> RemoveAsync(TEntity entity)
+        public virtual async Task<TEntity> RemoveAsync(TEntity entity)
         {
             _dbContext.Remove(entity);
             await _dbContext.SaveChangesAsync();
@@ -32,7 +40,7 @@ namespace ElectronicJournal.DAL.Repositories
             return entity;
         }
 
-        public async Task<TEntity> UpdateAsync(TEntity entity)
+        public virtual async Task<TEntity> UpdateAsync(TEntity entity)
         {
             _dbContext.Update(entity);
             await _dbContext.SaveChangesAsync();

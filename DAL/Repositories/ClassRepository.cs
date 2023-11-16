@@ -14,5 +14,12 @@ namespace ElectronicJournal.DAL.Repositories
         {
             return await _dbContext.Classes.FirstOrDefaultAsync(c => c.Id == id);
         }
+
+        public override IQueryable<Class> GetAll()
+        {
+            return _dbContext.Classes
+                .Include(c => c.Students)
+                .Include(c => c.Lessons);
+        }
     }
 }

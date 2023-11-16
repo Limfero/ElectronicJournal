@@ -1,6 +1,7 @@
 using ElectronicJournal.DAL;
 using ElectronicJournal.DAL.Interfaces;
 using ElectronicJournal.DAL.Repositories;
+using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Service.Implementations;
 using ElectronicJournal.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,12 @@ builder.Services.AddScoped<ILessonService, LessonService>();
 
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<IClassService, ClassService>();
+
+builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
+builder.Services.AddScoped<ITeacherService, TeacherService>();
+
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
+builder.Services.AddScoped<ISubjectService, SubjectService>();
 
 var connectionString = builder.Configuration.GetConnectionString("MSSQL");
 

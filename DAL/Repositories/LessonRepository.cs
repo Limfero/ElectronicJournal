@@ -10,29 +10,6 @@ namespace ElectronicJournal.DAL.Repositories
         {
         }
 
-        public override async Task<Lesson> CreateAsync(Lesson entity)
-        {
-            try
-            {
-                _dbContext.Teachers.FirstOrDefault(teacher => teacher.Id == entity.IdTeacher).Lessons.Add(entity);
-                _dbContext.Classes.FirstOrDefault(c => c.Id == entity.IdClass).Lessons.Add(entity);
-                _dbContext.Subjects.FirstOrDefault(subject => subject.Id == entity.IdSubject).Lessons.Add(entity);
-
-                entity.Teacher = _dbContext.Teachers.FirstOrDefault(teacher => teacher.Id == entity.IdTeacher);
-                entity.Subject = _dbContext.Subjects.FirstOrDefault(subject => subject.Id == entity.IdSubject);
-                entity.Class = _dbContext.Classes.FirstOrDefault(c => c.Id == entity.IdClass);
-
-                await _dbContext.AddAsync(entity);
-                await _dbContext.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                return new Lesson() { Description = ex.Message };
-            }
-
-            return entity;
-        }
-
         public async Task<Lesson> GetByIdAsync(int id)
         {
             return await _dbContext.Lessons.FirstOrDefaultAsync(lesson => lesson.Id == id);
@@ -43,6 +20,14 @@ namespace ElectronicJournal.DAL.Repositories
             return await _dbContext.Lessons.Where(lesson => lesson.Class.Id == idClass)
                                          .Where(lesson => lesson.Date == date)
                                          .ToListAsync();
+        }
+
+        public override IQueryable<Lesson> GetAll()
+        {
+            return _dbContext.Lessons
+                .Include(lesson => lesson.Scores)
+                .Include(lesson => lesson.Teacher)
+                .Include(lesson => lesson.Class);
         }
     }
 }

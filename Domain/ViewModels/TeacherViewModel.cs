@@ -1,11 +1,10 @@
 ﻿using ElectronicJournal.Domain.Enum;
+using ElectronicJournal.Domain.Entity;
 
-namespace ElectronicJournal.Domain.Entity
+namespace ElectronicJournal.Domain.ViewModels
 {
-    public class Teacher
+    public class TeacherViewModel
     {
-        public int Id { get; set; }
-
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
@@ -15,10 +14,6 @@ namespace ElectronicJournal.Domain.Entity
         public string Login { get; set; }
 
         public string Password { get; set; }
-
-        public Role Role { get; set; }
-
-        public List<Lesson> Lessons { get; set; } = new();
 
         public List<Subject> Subjects { get; set; } = new();
     }

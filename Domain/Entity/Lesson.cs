@@ -23,6 +23,6 @@
         public int IdSubject { get; set; }
         public Subject? Subject { get; set; }
 
-        public List<Score>? Scores { get; set; } = new();
+        public List<Score> Scores { get; set; } = new();
     }
 }

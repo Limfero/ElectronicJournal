@@ -1,5 +1,5 @@
 ﻿using ElectronicJournal.Domain.Entity;
-using ElectronicJournal.Domain.ViewModels.Lesson;
+using ElectronicJournal.Domain.ViewModels;
 using ElectronicJournal.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,15 +32,15 @@ namespace ElectronicJournal.Controllers
         }
 
         [HttpPost]
-        [Route("createLesson")]
-        public async Task<IActionResult> Create(LessonViewModel model)
+        [Route("createLessons")]
+        public async Task<IActionResult> CreateRange(LessonViewModel model, DateOnly UntilWhatDate)
         {
-            var response = await _lessonService.CreateLesson(model);
+            var response = await _lessonService.CreateRangeLessons(model, UntilWhatDate);
 
             if(response.StatusCode == Domain.Enum.StatusCode.OK)
                 return Ok(new {description = response.Description});
 
-            return BadRequest(new { description = response.Data.Description });
+            return BadRequest(new { description = response.Description });
         }
     }
 }

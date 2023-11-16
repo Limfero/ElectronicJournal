@@ -43,7 +43,8 @@ namespace ElectronicJournal.DAL.Configurations
                 .IsRequired();
 
             builder.HasMany(teacher => teacher.Subjects)
-                .WithMany(subject => subject.Teachers);
+                .WithMany(subject => subject.Teachers)
+                .UsingEntity(j => j.ToTable("teacher_has_subject"));
         }
     }
 }

@@ -6,6 +6,8 @@
 
         Task<TEntity> RemoveAsync(TEntity entity);
 
+        Task<List<TEntity>> CreateRangeAsync(List<TEntity> entity);
+
         Task<TEntity> CreateAsync(TEntity entity);
 
         Task<TEntity> UpdateAsync(TEntity entity);

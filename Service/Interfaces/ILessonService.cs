@@ -1,6 +1,6 @@
 ﻿using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Domain.Response;
-using ElectronicJournal.Domain.ViewModels.Lesson;
+using ElectronicJournal.Domain.ViewModels;
 
 namespace ElectronicJournal.Service.Interfaces
 {
@@ -10,6 +10,6 @@ namespace ElectronicJournal.Service.Interfaces
 
         IBaseResponse<List<Lesson>> GetAllLessons();
 
-        Task<IBaseResponse<Lesson>> CreateLesson(LessonViewModel model);
+        Task<IBaseResponse<List<Lesson>>> CreateRangeLessons(LessonViewModel model, DateOnly UntilWhatDate);
     }
 }

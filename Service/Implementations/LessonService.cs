@@ -2,7 +2,7 @@
 using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Domain.Enum;
 using ElectronicJournal.Domain.Response;
-using ElectronicJournal.Domain.ViewModels.Lesson;
+using ElectronicJournal.Domain.ViewModels;
 using ElectronicJournal.Service.Interfaces;
 using System.Globalization;
 
@@ -84,7 +84,7 @@ namespace ElectronicJournal.Service.Implementations
             }
         }
 
-        public async Task<IBaseResponse<Lesson>> CreateLesson(LessonViewModel model)
+        public async Task<IBaseResponse<List<Lesson>>> CreateRangeLessons(LessonViewModel model, DateOnly UntilWhatDate)
         {
             try
             {
@@ -93,17 +93,13 @@ namespace ElectronicJournal.Service.Implementations
                     .Where(lesson => lesson.Date == model.Date)
                     .ToDictionary(lesson => lesson.StartTime, lesson => lesson.EndTime);
 
-                foreach (var timeInterval in timeIntervalsOfLesson)
-                {
-                    if (model.StartTime >= timeInterval.Key && model.StartTime <= timeInterval.Value)
-                    {
-                        return new BaseResponse<Lesson>()
+                foreach (var timeInterval in timeIntervalsOfLesson) 
+                    if (model.StartTime.IsBetween(timeInterval.Key, timeInterval.Value) && model.EndTime.IsBetween(timeInterval.Key, timeInterval.Value))
+                        return new BaseResponse<List<Lesson>>()
                         {
                             Description = "В это время уже идет урок",
                             StatusCode = StatusCode.TimeIsBusy
                         };
-                    }
-                }
 
                 var lesson = new Lesson()
                 {
@@ -117,27 +113,44 @@ namespace ElectronicJournal.Service.Implementations
                     IdTeacher = model.IdTeacher
                 };
 
-                var responseLesson = await _lessonRepository.CreateAsync(lesson);
+                DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
+                int dayInWeek = 7;
+                List<Lesson> lessonsToAdd = new() { lesson };
 
-                if (responseLesson.Class == null)
-                {
-                    return new BaseResponse<Lesson>()
+                if (dateNow.AddDays(dayInWeek) != UntilWhatDate)
+                    lessonsToAdd.Add(new Lesson() 
                     {
-                        Description = $"Урок не был создан: {responseLesson.Description}",
+                        StartTime = lesson.StartTime,
+                        EndTime = lesson.EndTime,
+                        IdClass = lesson.IdClass,
+                        Date = dateNow.AddDays(dayInWeek),
+                        ClassRoom = lesson.ClassRoom,
+                        Description = lesson.Description,
+                        IdSubject = lesson.IdSubject,
+                        IdTeacher = lesson.IdTeacher                        
+                    });
+
+                var response = await _lessonRepository.CreateRangeAsync(lessonsToAdd);
+
+                if (response.FirstOrDefault().Class == null)
+                {
+                    return new BaseResponse<List<Lesson>>()
+                    {
+                        Description = $"Урок не был создан: {response.FirstOrDefault().Description}",
                         StatusCode = StatusCode.LessonNotCreated
                     };
                 } 
 
-                return new BaseResponse<Lesson>()
+                return new BaseResponse<List<Lesson>>()
                 {
-                    Description = "Урок был создан",
+                    Description = "Уроки были созданы",
                     StatusCode = StatusCode.OK
                 };
 
             }
             catch (Exception ex)
             {
-                return new BaseResponse<Lesson>()
+                return new BaseResponse<List<Lesson>>()
                 {
                     Description = $"[LessonService.CreateLesson] - {ex.Message}",
                     StatusCode = StatusCode.InternalServerError

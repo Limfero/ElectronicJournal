@@ -1,4 +1,4 @@
-﻿namespace ElectronicJournal.Domain.ViewModels.Lesson
+﻿namespace ElectronicJournal.Domain.ViewModels
 {
     public class LessonViewModel
     {
