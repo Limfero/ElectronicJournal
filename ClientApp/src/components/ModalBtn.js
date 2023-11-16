@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 
-const ModalButton = ({ modalContent, title, btnName }) => {
+const ModalButton = ({ modalContent, title, btnName, clearList }) => {
   const [showModal, setShowModal] = useState(false);
 
   const handleCloseModal = () => {
@@ -10,6 +10,7 @@ const ModalButton = ({ modalContent, title, btnName }) => {
 
   const handleOpenModal = () => {
     setShowModal(true);
+    clearList();
   };
 
   return (

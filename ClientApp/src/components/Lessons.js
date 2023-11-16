@@ -11,6 +11,10 @@ const currentDate = fullDate.getFullYear() + '-' + fullDate.getMonth() + '-' + f
 const Lessons = () => {
     const [allLessons, setLessons] = useState([]);
     const [allClasses, setClasses] = useState([]);
+    const [allSubjects, setSubjects] = useState([]);
+    const [allTeachers, setTeachers] = useState([]);
+    const [subject, setSubject] = useState();
+    const [teacher, setTeacher] = useState();
 
     const getSchedule = async (date, idClass) => {
         const headers = new Headers();
@@ -31,14 +35,18 @@ const Lessons = () => {
     }
 
     const addLesson = async () => {
-
-        const headerFromUser = document.querySelector('#header').value;
-        const textFromUser = document.querySelector('#text').value;
-
         const newLesson = {
-            header: headerFromUser,
-            text: textFromUser
+            startTime: document.getElementById('startTime').value,
+            endTime: document.getElementById('endTime').value,
+            idClass: document.getElementById("classId").value,
+            date: document.getElementById('date').value,
+            classRoom: document.getElementById('classRoom').value,
+            description: document.getElementById('description').value,
+            idSubject: document.getElementById('idSubject').value,
+            idTeacher: document.getElementById('idTeacher').value
         };
+
+        const untilWhatDate = document.getElementById('untilWhatDate').value;
 
         const headers = new Headers();
         headers.set('Content-Type', 'application/json');
@@ -46,10 +54,10 @@ const Lessons = () => {
         const options = {
             method: 'POST',
             headers: headers,
-            body: JSON.stringify(newLesson)
+            body: JSON.stringify(newLesson, untilWhatDate)
         };
 
-        const result = await fetch(URL + "createLesson", options);
+        const result = await fetch(URL + "createLessons", options);
         if (result.ok){
             const lesson = await result.json();
             allLessons.push(lesson);
@@ -57,24 +65,66 @@ const Lessons = () => {
         }
     }
 
-    const getClases = async () => {
-
+    const getClasses = async () => {
         const options = {
             method: 'GET',
             headers: new Headers()
         }
+
         const result = await fetch(`/api/classes/getClasses`, options);
+
         if(result.ok){
-            const clases = await result.json();
-            setClasses(clases);
-            return clases;
+            const classes = await result.json();
+            setClasses(classes);
+            return classes;
         }
         return [];
     }
 
+    const getSubjects = async () =>  {    
+        const options = {
+            method: 'GET',
+            headers: new Headers()
+        }
+
+        const result = await fetch(`/api/subjects/getSubjects`, options);
+
+        if(result.ok){
+            const subjects = await result.json();
+            setSubjects(subjects)
+            return subjects;
+        }
+        return [];
+    }
+
+    const getTeachers = async () => {
+        const options = {
+            method: 'GET',
+            headers: new Headers()
+        }
+
+        const result = await fetch(URL + '/getTeachers', options);
+
+        if(result.ok){
+            const teachers = await result.json();
+            setTeachers(teachers)
+            return teachers;
+        }
+        return [];
+    }
+
+    const changeTeacher = ({target: {value}}) => setTeacher(value)
+
+    const changeSubject = ({target: {value}}) => {
+        setSubject(value);
+        setTeacher("");
+    }
+
     useEffect(() => {
-        getClases();
-        getSchedule(currentDate, allClasses[allClasses.length - 1]);
+        getSchedule();
+        getClasses();
+        getSubjects();
+        getTeachers();
     }, [])
 
     return(
@@ -84,7 +134,7 @@ const Lessons = () => {
                     <InputGroup.Text>Дата</InputGroup.Text>
                     <Form.Control type='date' id="date" defaultValue={currentDate}/>
                 </InputGroup>
-                 <Form.Select className="ms-3" id="classId" value={allClasses[allClasses.length]}>
+                 <Form.Select className="ms-3" id="classId" defaultValue="">
                     <option selected>Класс</option>
                     {allClasses.map(_class => (
                         <option value={_class.id}>{_class.name}</option>
@@ -105,7 +155,18 @@ const Lessons = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {Object.entries(allLessons).map((value) => <LessonsItem key={value[1].id} date={value[0]} lessons={value[1]} addAction={addLesson}/>)}
+                            {Object.entries(allLessons).map((value) => <LessonsItem key={value[1].id} 
+                                date={value[0]} 
+                                lessons={value[1]} 
+                                addAction={addLesson} 
+                                allClasses={allClasses} 
+                                allSubjects={allSubjects} 
+                                allTeachers = {allTeachers}
+                                teacher={teacher} 
+                                subject={subject} 
+                                changeSubject={changeSubject} 
+                                changeTeacher={changeTeacher}
+                            />)}
                         </tbody>
                     </table>
                 </div>
@@ -116,7 +177,7 @@ const Lessons = () => {
 
 export default Lessons;
 
-const LessonsItem = ({lessons, date, addAction}) => {
+const LessonsItem = ({lessons, date, addAction, allTeachers, allClasses, allSubjects, teacher, subject, changeSubject, changeTeacher}) => {
     return(
         <tr>
             <th scope="row">{date}</th>
@@ -139,52 +200,79 @@ const LessonsItem = ({lessons, date, addAction}) => {
                         </tr>
                     ))} 
                     <tr>
-                        <td colspan="4">
-                            <ModalButton 
-                                btnName={'Добавить урок'} 
-                                title={'Создание урока'}
-                                modalContent={
-                                    <Form>
-                                    <fieldset disabled>
-                                        <InputGroup className="mb-3">
-                                            <InputGroup.Text>Дата</InputGroup.Text>
-                                            <Form.Control id="disabledTextInput" placeholder={date} />
-                                        </InputGroup>
-                                        <InputGroup className="mb-3">
-                                            <InputGroup.Text>Класс</InputGroup.Text>
-                                            <Form.Control id="disabledTextInput" placeholder={document.getElementById("classId").value}/>
-                                        </InputGroup>
-                                    </fieldset>
-                                        <InputGroup className="mb-3">
-                                            <InputGroup.Text>Начало урока</InputGroup.Text>
-                                            <FormControl id="startTime" type="time"></FormControl>
-                                        </InputGroup>
-                                        <InputGroup className="mb-3">
-                                            <InputGroup.Text>Конец урока</InputGroup.Text>
-                                            <FormControl id="endTime" type="time"></FormControl>
-                                        </InputGroup>
-                                        <InputGroup className="mb-3">
-                                            <InputGroup.Text>Кабинет</InputGroup.Text>
-                                            <Form.Control id="classroom" placeholder="Номер кабинета"/>
-                                        </InputGroup>
-                                        <InputGroup className="mb-3">
-                                            <InputGroup.Text>Описание</InputGroup.Text>
-                                            <Form.Control id="description" as="textarea" aria-label="Описание"/>
-                                        </InputGroup>
-                                        <InputGroup className="mb-3">
-                                            <Form.Select aria-label="Предмет">
-
-                                            </Form.Select>
-                                        </InputGroup>
-                                      <Button type="submit" onClick={() => addAction()}>Создать!</Button>
-                                  </Form>                              
-                                }
+                        <td colSpan="4">
+                            <ButtonCreateLesson 
+                                date={date} 
+                                addAction={addAction} 
+                                allClasses={allClasses} 
+                                allSubjects={allSubjects} 
+                                allTeachers = {allTeachers}
+                                teacher={teacher} 
+                                subject={subject} 
+                                changeSubject={changeSubject} 
+                                changeTeacher={changeTeacher}
                             />
                         </td>
                     </tr> 
                 </tbody>
             </table>
         </tr>
+    )
+}
+
+const ButtonCreateLesson = ({date, addAction, allClasses, allTeachers, allSubjects, teacher, subject, changeSubject, changeTeacher}) => {
+    return(
+        <ModalButton 
+            btnName={'Добавить урок'} 
+            title={'Создание урока'}
+            modalContent={
+                <Form>
+                <fieldset disabled>
+                    <InputGroup className="mb-3">
+                        <InputGroup.Text>Дата</InputGroup.Text>
+                        <Form.Control id="disabledTextInput" placeholder={date} />
+                    </InputGroup>
+                    <InputGroup className="mb-3">
+                        <InputGroup.Text>Класс</InputGroup.Text>
+                        <Form.Control id="disabledTextInput" placeholder={allClasses.find(value => value.id === document.getElementById("classId").value).name}/>
+                    </InputGroup>
+                </fieldset>
+                    <InputGroup className="mb-3">
+                        <InputGroup.Text>Начало урока</InputGroup.Text>
+                        <FormControl id="startTime" type="time"></FormControl>
+                    </InputGroup>
+                    <InputGroup className="mb-3">
+                        <InputGroup.Text>Конец урока</InputGroup.Text>
+                        <FormControl id="endTime" type="time"></FormControl>
+                    </InputGroup>
+                    <InputGroup className="mb-3">
+                        <InputGroup.Text>Кабинет</InputGroup.Text>
+                        <Form.Control id="classroom" type="number" placeholder="Номер кабинета"/>
+                    </InputGroup>
+                    <InputGroup className="mb-3">
+                        <InputGroup.Text>Описание</InputGroup.Text>
+                        <Form.Control id="description" type="number" as="textarea" aria-label="Описание"/>
+                    </InputGroup>
+                    <InputGroup className="mb-3">
+                        <Form.Select onChange={changeSubject} id="idSubject" aria-label="Предмет">
+                            {(subject === null ? allSubjects : teacher.subjects).map((s) =>
+                            <option value={s} key={s.id}>{s.name}</option>) }            
+                        </Form.Select>
+                    </InputGroup>
+                    <InputGroup className="mb-3" id="teachers" disabled>
+                        <Form.Select onChange={changeTeacher} id="idTeacher" aria-label="Учитель" >  
+                            {(teacher === null ? allTeachers : subject.teachers).map((t) => 
+                            <option value={t} id={t.id}>{`${t.firstName} ${t.lastName} ${t.middleName}`}</option>)} 
+                        </Form.Select>
+                    </InputGroup>
+                    <InputGroup className="mb-3">                       
+                        <InputGroup.Text>До какого числа</InputGroup.Text>
+                        <Form.Control type='date' id="untilWhatDate" defaultValue={fullDate}/>
+                    </InputGroup>   
+                    <Button type="submit" onClick={() => addAction()}>Создать!</Button>
+                </Form>                              
+            }
+        />
     )
 }
 
