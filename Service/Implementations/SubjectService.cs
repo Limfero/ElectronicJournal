@@ -39,7 +39,7 @@ namespace ElectronicJournal.Service.Implementations
                      Lessons = new()
                 };
 
-                var response = await _subjectRepository.CreateAsync(entity);
+                var response = await _subjectRepository.CreateAsync(subject);
 
                 return new BaseResponse<Subject>()
                 {
@@ -98,8 +98,11 @@ namespace ElectronicJournal.Service.Implementations
                 var response = _subjectRepository.GetAll().ToList();
 
                 foreach (var subject in response)
+                {
+                    subject.Lessons = new();
                     foreach (var teacher in subject.Teachers)
                         teacher.Subjects.Clear();
+                }
 
                 if (response == null)
                 {

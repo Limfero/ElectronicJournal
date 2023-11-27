@@ -91,8 +91,11 @@ namespace ElectronicJournal.Service.Implementations
                 var response = _teacherRepository.GetAll().ToList();
 
                 foreach (var teacher in response)
+                {
+                    teacher.Lessons = new();
                     foreach (var subject in teacher.Subjects)
                         subject.Teachers.Clear();
+                }
 
                 if (response == null)
                 {

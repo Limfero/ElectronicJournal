@@ -16,10 +16,9 @@ namespace ElectronicJournal.DAL.Repositories
             entity.Teachers = new();
 
             _dbContext.Subjects.Add(entity);
+            await _dbContext.SaveChangesAsync();
 
-            entity.Teachers = teachers;
-
-            await _dbContext.AddAsync(entity);
+            entity.Teachers.AddRange(teachers);
             await _dbContext.SaveChangesAsync();
 
             return entity;

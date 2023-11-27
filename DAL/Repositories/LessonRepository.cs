@@ -17,9 +17,13 @@ namespace ElectronicJournal.DAL.Repositories
 
         public async Task<List<Lesson>> GetByClassAndDateAsync(int idClass, DateOnly date)
         {
-            return await _dbContext.Lessons.Where(lesson => lesson.Class.Id == idClass)
-                                         .Where(lesson => lesson.Date == date)
-                                         .ToListAsync();
+            return await _dbContext.Lessons.Include(lesson => lesson.Scores)
+                .Include(lesson => lesson.Teacher)
+                .Include(lesson => lesson.Class)
+                .Include(lesson => lesson.Subject)
+                .Where(lesson => lesson.Class.Id == idClass)
+                .Where(lesson => lesson.Date == date)
+                .ToListAsync();
         }
 
         public override IQueryable<Lesson> GetAll()
@@ -27,7 +31,8 @@ namespace ElectronicJournal.DAL.Repositories
             return _dbContext.Lessons
                 .Include(lesson => lesson.Scores)
                 .Include(lesson => lesson.Teacher)
-                .Include(lesson => lesson.Class);
+                .Include(lesson => lesson.Class)
+                .Include(lesson => lesson.Subject);      
         }
     }
 }

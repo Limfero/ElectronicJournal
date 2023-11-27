@@ -24,6 +24,10 @@ builder.Services.AddScoped<ITeacherService, TeacherService>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+
+
 var connectionString = builder.Configuration.GetConnectionString("MSSQL");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

@@ -33,9 +33,9 @@ namespace ElectronicJournal.Controllers
 
         [HttpPost]
         [Route("createLessons")]
-        public async Task<IActionResult> CreateRange(LessonViewModel model, DateOnly UntilWhatDate)
+        public async Task<IActionResult> CreateRange(LessonViewModel model)
         {
-            var response = await _lessonService.CreateRangeLessons(model, UntilWhatDate);
+            var response = await _lessonService.CreateRangeLessons(model);
 
             if(response.StatusCode == Domain.Enum.StatusCode.OK)
                 return Ok(new {description = response.Description});

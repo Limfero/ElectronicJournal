@@ -30,7 +30,14 @@ namespace ElectronicJournal.Service.Implementations
                     var response = await _lessonRepository.GetByClassAndDateAsync(idClass, day);
 
                     foreach (var lesson in response)
+                    {
+                        lesson.Subject.Lessons = new();
+                        lesson.Teacher.Lessons = new();
+                        lesson.Class.Lessons = new();
+                        lesson.Scores.ForEach(score => { score.Lesson = new(); });
+
                         weeklyLessons[lesson.Date].Add(lesson);
+                    }
                 }
 
                 return new BaseResponse<Dictionary<DateOnly, List<Lesson>>>()
@@ -84,51 +91,41 @@ namespace ElectronicJournal.Service.Implementations
             }
         }
 
-        public async Task<IBaseResponse<List<Lesson>>> CreateRangeLessons(LessonViewModel model, DateOnly UntilWhatDate)
+        public async Task<IBaseResponse<List<Lesson>>> CreateRangeLessons(LessonViewModel model)
         {
             try
             {
+                DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
+                int dayInWeek = 7;
+                List<Lesson> lessonsToAdd = new();
+                var dateModel = model.Date;
+
                 var timeIntervalsOfLesson = _lessonRepository.GetAll()
                     .Where(lesson => lesson.IdClass == model.IdClass)
                     .Where(lesson => lesson.Date == model.Date)
                     .ToDictionary(lesson => lesson.StartTime, lesson => lesson.EndTime);
 
-                foreach (var timeInterval in timeIntervalsOfLesson) 
-                    if (model.StartTime.IsBetween(timeInterval.Key, timeInterval.Value) && model.EndTime.IsBetween(timeInterval.Key, timeInterval.Value))
-                        return new BaseResponse<List<Lesson>>()
-                        {
-                            Description = "В это время уже идет урок",
-                            StatusCode = StatusCode.TimeIsBusy
-                        };
-
-                var lesson = new Lesson()
+                do
                 {
-                    StartTime = model.StartTime,
-                    EndTime = model.EndTime,
-                    IdClass = model.IdClass,
-                    Date = model.Date,
-                    ClassRoom = model.ClassRoom,
-                    Description = model.Description,
-                    IdSubject = model.IdSubject,
-                    IdTeacher = model.IdTeacher
-                };
-
-                DateOnly dateNow = DateOnly.FromDateTime(DateTime.Now);
-                int dayInWeek = 7;
-                List<Lesson> lessonsToAdd = new() { lesson };
-
-                if (dateNow.AddDays(dayInWeek) != UntilWhatDate)
-                    lessonsToAdd.Add(new Lesson() 
+                    var lesson = new Lesson()
                     {
-                        StartTime = lesson.StartTime,
-                        EndTime = lesson.EndTime,
-                        IdClass = lesson.IdClass,
-                        Date = dateNow.AddDays(dayInWeek),
-                        ClassRoom = lesson.ClassRoom,
-                        Description = lesson.Description,
-                        IdSubject = lesson.IdSubject,
-                        IdTeacher = lesson.IdTeacher                        
-                    });
+                        StartTime = model.StartTime,
+                        EndTime = model.EndTime,
+                        IdClass = model.IdClass,
+                        Date = dateModel,
+                        ClassRoom = model.ClassRoom,
+                        Description = model.Description,
+                        IdSubject = model.IdSubject,
+                        IdTeacher = model.IdTeacher
+                    };
+
+                    foreach (var timeInterval in timeIntervalsOfLesson)
+                        if (lesson.StartTime.IsBetween(timeInterval.Key, timeInterval.Value) && lesson.EndTime.IsBetween(timeInterval.Key, timeInterval.Value) || lesson.StartTime == timeInterval.Key)
+                            continue;
+
+                    lessonsToAdd.Add(lesson);
+                }
+                while (dateModel.AddDays(dayInWeek) <= model.UntilWhatDate);
 
                 var response = await _lessonRepository.CreateRangeAsync(lessonsToAdd);
 
@@ -139,7 +136,7 @@ namespace ElectronicJournal.Service.Implementations
                         Description = $"Урок не был создан: {response.FirstOrDefault().Description}",
                         StatusCode = StatusCode.LessonNotCreated
                     };
-                } 
+                }
 
                 return new BaseResponse<List<Lesson>>()
                 {

@@ -24,6 +24,12 @@ namespace ElectronicJournal.Service.Implementations
             {
                 var response = _classRepository.GetAll().ToList();
 
+                foreach (var @class in response) 
+                {
+                    @class.Students.ForEach(student => { student.Class = null; });
+                    @class.Lessons = new();
+                }
+
                 if (response == null)
                 {
                     return new BaseResponse<List<Class>>()

@@ -45,7 +45,7 @@ namespace ElectronicJournal.Controllers
 
         [HttpPatch]
         [Route("updateClass/{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] ClassViewModel model)
+        public async Task<IActionResult> Update(ClassViewModel model, int id)
         {
             var response = await _classService.UpdateClass(id, model);
 

@@ -10,6 +10,6 @@ namespace ElectronicJournal.Service.Interfaces
 
         IBaseResponse<List<Lesson>> GetAllLessons();
 
-        Task<IBaseResponse<List<Lesson>>> CreateRangeLessons(LessonViewModel model, DateOnly UntilWhatDate);
+        Task<IBaseResponse<List<Lesson>>> CreateRangeLessons(LessonViewModel model);
     }
 }

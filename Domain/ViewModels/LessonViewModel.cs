@@ -10,7 +10,9 @@
 
         public TimeOnly EndTime { get; set; }
 
-        public string Description { get; set; }
+        public DateOnly UntilWhatDate { get; set; }
+
+        public string? Description { get; set; }
 
         public int IdClass { get; set; }
 
