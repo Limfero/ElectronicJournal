@@ -37,8 +37,8 @@ const AppRoutes = [
     element: <Classes />
   },
   {
-    path: `/student/${id}`,
-    element: <Student idStudent={id} />
+    path: `/student/:id`,
+    element: <Student/>
   }
 ];
 

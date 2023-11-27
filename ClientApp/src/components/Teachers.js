@@ -163,7 +163,7 @@ const TeacherItem = ({teacher, deleteAction}) => {
                         </Accordion.Body>
                 </Accordion.Item>
             </Accordion> 
-            <Button onClick={() => deleteAction(teacher.id)}>Удалить</Button>        
+            <Button variant="danger" onClick={() => deleteAction(teacher.id)}>Удалить</Button>        
         </div>
     )
 }

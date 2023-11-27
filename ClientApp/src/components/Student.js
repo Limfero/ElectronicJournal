@@ -1,9 +1,13 @@
 import { useEffect } from "react";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
 
 const URL = '/api/students'
 
-const Student = (idStudent) =>
+const Student = () =>
 {
+    const params = useParams();
+    const idStudent = Number(params.id);
     const [student, setStudent] = useState();
 
     const getStudent = async () => {
@@ -36,33 +40,45 @@ const Student = (idStudent) =>
 
     useEffect(() => {
         getStudent();
-    }, []);
+    });
 
-    return(
-        <div>
-            <h2>{student.firstName}</h2>
-            <h2>{student.lastName}</h2>
-            <h2>{student.middleName}</h2>
+    if(student!==undefined){
+        return(
+            <div>
+                <h2>{student.firstName}</h2>
+                <h2>{student.lastName}</h2>
+                <h2>{student.middleName}</h2>
 
-            <p>Класс: {student.class.name}</p>
-
-            <table>
-                <thead className ="thead-dark">
-                    <tr>
-                        <th scope="col" className ="col-md-1">Предмет</th>
-                        <th scope="col">Оценки</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {Object.entries(getScores(student.scores)).map((name, score) => 
-                    <tr>
-                        <th>name</th>
-                        <th>score</th>
-                    </tr>)}
-                </tbody>
-            </table>
-        </div>
-    )
+                <p>Класс: {student.class.name}</p>
+                <div className ="container">
+                    <div className ="row g-3 p-2">
+                        <table className ="table border bg-light">
+                            <thead className ="thead-dark">
+                                <tr>
+                                    <th scope="col" className ="col-md-1">Предмет</th>
+                                    <th scope="col">Оценки</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {Object.entries(getScores(student.scores)).map((name, score) => 
+                                <tr>
+                                    <th>{name}</th>
+                                    <th>{score}</th>
+                                </tr>)}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+    else{
+        return(
+            <div>
+                <h2>Такого ученика нет!</h2>
+            </div>
+        )
+    }
 }
 
 export default Student;

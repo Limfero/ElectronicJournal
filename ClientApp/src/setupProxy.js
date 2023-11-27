@@ -10,7 +10,7 @@ const context = [
   "/api/classes",
   "/api/teachers",
   "/api/subjects",
-  "/api/classes"
+  "/api/students"
 ];
 
 const onError = (err, req, resp, target) => {

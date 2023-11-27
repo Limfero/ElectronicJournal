@@ -147,7 +147,7 @@ const SubjectItem = ({subject, deleteAction}) => {
                         </Accordion.Body>
                 </Accordion.Item>
             </Accordion>
-            <Button onClick={() => deleteAction(subject.id)}>Удалить</Button>
+            <Button variant="danger" onClick={() => deleteAction(subject.id)}>Удалить</Button>
         </div>
     )
 }

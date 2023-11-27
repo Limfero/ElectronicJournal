@@ -16,7 +16,10 @@ const Lessons = () => {
     const [subject, setSubject] = useState();
     const [teacher, setTeacher] = useState();
 
-    const getSchedule = async (date, idClass) => {
+    const getSchedule = async () => {
+        const date = document.getElementById("date").value    
+        const idClass = document.getElementById("classId").value
+
         const headers = new Headers();
         headers.set('Content-Type', 'application/json');
 
@@ -36,17 +39,16 @@ const Lessons = () => {
 
     const addLesson = async () => {
         const newLesson = {
-            startTime: document.getElementById('startTime').value,
-            endTime: document.getElementById('endTime').value,
-            idClass: document.getElementById("classId").value,
-            date: document.getElementById('date').value,
-            classRoom: document.getElementById('classRoom').value,
+            startTime: `${document.getElementById('startTime').value}:00`,
+            endTime: `${document.getElementById('endTime').value}:00`,
+            idClass:  Number(document.getElementById("classId").value),
+            date: document.getElementById('correctDate').value,
+            classRoom:  Number(document.getElementById('classRoom').value),
             description: document.getElementById('description').value,
-            idSubject: document.getElementById('idSubject').value,
-            idTeacher: document.getElementById('idTeacher').value
+            idSubject:  Number(document.getElementById('idSubject').value),
+            idTeacher:  Number(document.getElementById('idTeacher').value),
+            untilWhatDate: document.getElementById('untilWhatDate').value
         };
-
-        const untilWhatDate = document.getElementById('untilWhatDate').value;
 
         const headers = new Headers();
         headers.set('Content-Type', 'application/json');
@@ -54,10 +56,10 @@ const Lessons = () => {
         const options = {
             method: 'POST',
             headers: headers,
-            body: JSON.stringify(newLesson, untilWhatDate)
+            body: JSON.stringify(newLesson)
         };
 
-        const result = await fetch(URL + "createLessons", options);
+        const result = await fetch(URL + `/createLessons`, options);
         if (result.ok){
             const lesson = await result.json();
             allLessons.push(lesson);
@@ -103,7 +105,7 @@ const Lessons = () => {
             headers: new Headers()
         }
 
-        const result = await fetch(URL + '/getTeachers', options);
+        const result = await fetch('api/teachers/getTeachers', options);
 
         if(result.ok){
             const teachers = await result.json();
@@ -113,11 +115,18 @@ const Lessons = () => {
         return [];
     }
 
-    const changeTeacher = ({target: {value}}) => setTeacher(value)
+    const changeTeacher = ({target: {value}}) => {
+        if(value !== undefined){
+            setTeacher(allTeachers.find(s => `${s.id}` === value));
+            setSubject(undefined);
+        }
+    }
 
     const changeSubject = ({target: {value}}) => {
-        setSubject(value);
-        setTeacher("");
+        if(value !== undefined){
+            setSubject(allSubjects.find(s => `${s.id}` === value));
+            setTeacher(undefined);
+        }
     }
 
     useEffect(() => {
@@ -132,17 +141,14 @@ const Lessons = () => {
             <div style={{display: 'flex'}}>
                 <InputGroup className="ms-3">
                     <InputGroup.Text>Дата</InputGroup.Text>
-                    <Form.Control type='date' id="date" defaultValue={currentDate}/>
+                    <Form.Control onChange={getSchedule} type='date' id="date"/>
                 </InputGroup>
-                 <Form.Select className="ms-3" id="classId" defaultValue="">
+                 <Form.Select onChange={getSchedule} className="ms-3" id="classId" defaultValue="">
                     <option selected>Класс</option>
                     {allClasses.map(_class => (
                         <option value={_class.id}>{_class.name}</option>
                     ))}
-                </Form.Select>
-                <Button className="ms-3" onClick={() => getSchedule(document.getElementById("date").value, document.getElementById("classId").value)}>
-                    Получить информацию
-                </Button>            
+                </Form.Select>        
             </div>
 
             <div className ="container">
@@ -196,21 +202,64 @@ const LessonsItem = ({lessons, date, addAction, allTeachers, allClasses, allSubj
                             <th>{lesson.startTime} - {lesson.endTime}</th>
                             <td>{lesson.subject?.name}</td>
                             <td>{lesson.classRoom}</td>
-                            <td>{lesson.teacher?.firstname} {lesson.teacher?.lastname} {lesson.teacher?.middlename}</td>
+                            <td>{lesson.teacher?.lastName} {lesson.teacher?.firstName} {lesson.teacher?.middleName}</td>
                         </tr>
                     ))} 
                     <tr>
                         <td colSpan="4">
-                            <ButtonCreateLesson 
-                                date={date} 
-                                addAction={addAction} 
-                                allClasses={allClasses} 
-                                allSubjects={allSubjects} 
-                                allTeachers = {allTeachers}
-                                teacher={teacher} 
-                                subject={subject} 
-                                changeSubject={changeSubject} 
-                                changeTeacher={changeTeacher}
+                            <ModalButton 
+                                btnName={'Добавить урок'} 
+                                title={'Создание урока'}
+                                clearList={() => {}}
+                                modalContent={
+                                    <Form>
+                                    <fieldset disabled>
+                                        <InputGroup className="mb-3">
+                                            <InputGroup.Text>Дата</InputGroup.Text>
+                                            <Form.Control id="correctDate" placeholder={date} />
+                                        </InputGroup>
+                                        <InputGroup className="mb-3">
+                                            <InputGroup.Text>Класс</InputGroup.Text>
+                                            <Form.Control id="disabledTextInput" placeholder={(allClasses.find(value => `${value.id}` === document.getElementById("classId").value)).name}/>
+                                        </InputGroup>
+                                    </fieldset>
+                                        <InputGroup className="mb-3">
+                                            <InputGroup.Text>Начало урока</InputGroup.Text>
+                                            <FormControl id="startTime" type="time"></FormControl>
+                                        </InputGroup>
+                                        <InputGroup className="mb-3">
+                                            <InputGroup.Text>Конец урока</InputGroup.Text>
+                                            <FormControl id="endTime" type="time"></FormControl>
+                                        </InputGroup>
+                                        <InputGroup className="mb-3">
+                                            <InputGroup.Text>Кабинет</InputGroup.Text>
+                                            <Form.Control id="classRoom" type="number" placeholder="Номер кабинета"/>
+                                        </InputGroup>
+                                        <InputGroup className="mb-3">
+                                            <InputGroup.Text>Описание</InputGroup.Text>
+                                            <Form.Control id="description" type="number" as="textarea" aria-label="Описание"/>
+                                        </InputGroup>
+                                        <InputGroup className="mb-3">
+                                            <Form.Select onChange={changeSubject} id="idSubject" aria-label="Предмет">
+                                                <option selected>Предмет</option>
+                                                {(teacher === undefined ? allSubjects : teacher.subjects).map((s) =>
+                                                <option value={s.id} key={s.id}>{s.name}</option>) }            
+                                            </Form.Select>
+                                        </InputGroup>
+                                        <InputGroup className="mb-3" id="teachers" disabled>
+                                            <Form.Select onChange={changeTeacher} id="idTeacher" aria-label="Учитель" > 
+                                                <option selected>Учитель</option> 
+                                                {(subject === undefined ? allTeachers : subject.teachers).map((t) => 
+                                                <option value={t.id} id={t.id}>{`${t.firstName} ${t.lastName} ${t.middleName}`}</option>)} 
+                                            </Form.Select>
+                                        </InputGroup>
+                                        <InputGroup className="mb-3">                       
+                                            <InputGroup.Text>До какого числа</InputGroup.Text>
+                                            <Form.Control type='date' id="untilWhatDate" defaultValue={fullDate}/>
+                                        </InputGroup>   
+                                        <Button type="submit" onClick={() => addAction()}>Создать!</Button>
+                                    </Form>                              
+                                }
                             />
                         </td>
                     </tr> 
@@ -219,60 +268,3 @@ const LessonsItem = ({lessons, date, addAction, allTeachers, allClasses, allSubj
         </tr>
     )
 }
-
-const ButtonCreateLesson = ({date, addAction, allClasses, allTeachers, allSubjects, teacher, subject, changeSubject, changeTeacher}) => {
-    return(
-        <ModalButton 
-            btnName={'Добавить урок'} 
-            title={'Создание урока'}
-            modalContent={
-                <Form>
-                <fieldset disabled>
-                    <InputGroup className="mb-3">
-                        <InputGroup.Text>Дата</InputGroup.Text>
-                        <Form.Control id="disabledTextInput" placeholder={date} />
-                    </InputGroup>
-                    <InputGroup className="mb-3">
-                        <InputGroup.Text>Класс</InputGroup.Text>
-                        <Form.Control id="disabledTextInput" placeholder={allClasses.find(value => value.id === document.getElementById("classId").value).name}/>
-                    </InputGroup>
-                </fieldset>
-                    <InputGroup className="mb-3">
-                        <InputGroup.Text>Начало урока</InputGroup.Text>
-                        <FormControl id="startTime" type="time"></FormControl>
-                    </InputGroup>
-                    <InputGroup className="mb-3">
-                        <InputGroup.Text>Конец урока</InputGroup.Text>
-                        <FormControl id="endTime" type="time"></FormControl>
-                    </InputGroup>
-                    <InputGroup className="mb-3">
-                        <InputGroup.Text>Кабинет</InputGroup.Text>
-                        <Form.Control id="classroom" type="number" placeholder="Номер кабинета"/>
-                    </InputGroup>
-                    <InputGroup className="mb-3">
-                        <InputGroup.Text>Описание</InputGroup.Text>
-                        <Form.Control id="description" type="number" as="textarea" aria-label="Описание"/>
-                    </InputGroup>
-                    <InputGroup className="mb-3">
-                        <Form.Select onChange={changeSubject} id="idSubject" aria-label="Предмет">
-                            {(subject === null ? allSubjects : teacher.subjects).map((s) =>
-                            <option value={s} key={s.id}>{s.name}</option>) }            
-                        </Form.Select>
-                    </InputGroup>
-                    <InputGroup className="mb-3" id="teachers" disabled>
-                        <Form.Select onChange={changeTeacher} id="idTeacher" aria-label="Учитель" >  
-                            {(teacher === null ? allTeachers : subject.teachers).map((t) => 
-                            <option value={t} id={t.id}>{`${t.firstName} ${t.lastName} ${t.middleName}`}</option>)} 
-                        </Form.Select>
-                    </InputGroup>
-                    <InputGroup className="mb-3">                       
-                        <InputGroup.Text>До какого числа</InputGroup.Text>
-                        <Form.Control type='date' id="untilWhatDate" defaultValue={fullDate}/>
-                    </InputGroup>   
-                    <Button type="submit" onClick={() => addAction()}>Создать!</Button>
-                </Form>                              
-            }
-        />
-    )
-}
-

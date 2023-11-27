@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useState } from "react";
 import ModalButton from "./ModalBtn";
 import { Button, Form, FormControl, InputGroup, Accordion } from "react-bootstrap";
+import { NavLink } from 'reactstrap';
+import { Link } from 'react-router-dom';
 
 const URLClass = `/api/classes`;
 const URLStudent = `/api/students`;
@@ -67,10 +69,9 @@ const Classes = () => {
         }
 
         const result = await fetch(URLStudent + `/getStudents`, options);
-
         if(result.ok){
             const students = await result.json();
-            setStudetns(students)
+            setStudents(students)
             return students;
         }
         return [];
@@ -78,12 +79,12 @@ const Classes = () => {
     
     const addStudent = async () => {
         const newStudent = {
-            firsName: `${document.getElementById('firsName').value}`,
+            firstName: `${document.getElementById('firstName').value}`,
             lastName: `${document.getElementById('lastName').value}`,
             middleName: `${document.getElementById('middleName').value}`,
             login: `S${1000000000 + (allStudents[allStudents.length - 1]?.id !== undefined ? allStudents[allStudents.length - 1].id : 0)}`,
             password: `${document.getElementById('password').value}`,
-            idClass: `${document.getElementById('class').value}`,
+            idClass: allClases.find(s => `${s.name}`=== `${document.getElementById('class').value}`).id,
         };
 
         const headers = new Headers();
@@ -126,14 +127,14 @@ const Classes = () => {
                 </div>
             }
             />
-            {allClases.map(x => <ClassItem key={x.id} _class={x} deleteAction={deleteClass} addAction={addStudent} allStudents={allStudents}/>)}
+            {allClases.map(x => <ClassItem key={x.id} _class={x} deleteAction={deleteClass} addAction={addStudent} allStudents={allStudents} getClasses={getClasses}/>)}
         </div>
     )
 }
 
 export default Classes;
 
-const ClassItem = ({_class, deleteAction, addAction, allStudents}) => {
+const ClassItem = ({_class, deleteAction, addAction, allStudents, getClasses}) => {
     return(
         <div style={{backgroundColor: 'whitesmoke', margin: '10px', borderRadius: '10px', padding: '10px'}}>
             <h3 className="mb-3">{_class.name}</h3>
@@ -141,9 +142,11 @@ const ClassItem = ({_class, deleteAction, addAction, allStudents}) => {
                 <Accordion.Item eventKey="0">
                     <Accordion.Header>Студенты</Accordion.Header>
                         <Accordion.Body>
-                            <ul className="list-group">
-                                {_class.students?.map((s) => 
-                                    <StudentItem student={s}></StudentItem>)}
+                            <ul className="list-group mb-3">
+                                {_class.students?.map(s => 
+                                    <NavLink tag={Link} className="text-dark" to={`/student/${s.id}`}>
+                                        <li className="list-group-item" value={s} id={s.id}> {s.firstName} {s.lastName} {s.middleName}</li>
+                                    </NavLink>)}
                             </ul>
                             <ModalButton 
                             btnName={'Добавить cтудента'} 
@@ -174,7 +177,7 @@ const ClassItem = ({_class, deleteAction, addAction, allStudents}) => {
                                     </InputGroup>
                                     <InputGroup className="mb-3">
                                         <InputGroup.Text>Класс</InputGroup.Text>
-                                        <FormControl id="class" type="text" disabled placeholder={_class.name} value={_class.id}></FormControl>
+                                        <FormControl id="class" type="text" value={_class.name} disabled></FormControl>
                                     </InputGroup>
                                     <Button type="submit" onClick={() => addAction()}>Создать!</Button>
                                 </Form>                  
@@ -184,17 +187,7 @@ const ClassItem = ({_class, deleteAction, addAction, allStudents}) => {
                         </Accordion.Body>
                 </Accordion.Item>
             </Accordion> 
-            <Button onClick={() => deleteAction(_class.id)}>Удалить</Button>        
+            <Button variant="danger" onClick={() => deleteAction(_class.id)}>Удалить</Button>        
         </div>
     )
 };
-
-const StudentItem = (student) => {
-    return(
-        <div style={{backgroundColor: 'whitesmoke', margin: '10px', borderRadius: '10px', padding: '10px'}}>
-            <NavLink tag={Link} className="text-dark" to={`/student/${s.id}`}>
-                <li className="list-group-item" value={s} id={s.id}>{s.firstName} {s.lastName} {s.middleName}</li>
-            </NavLink>
-        </div>
-    )
-}
