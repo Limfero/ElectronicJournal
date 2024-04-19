@@ -2,6 +2,7 @@
 using ElectronicJournal.Domain.ViewModels;
 using ElectronicJournal.Service.Implementations;
 using ElectronicJournal.Service.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ElectronicJournal.Controllers
@@ -9,6 +10,7 @@ namespace ElectronicJournal.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class StudentsController : ControllerBase
     {
         private readonly IStudentService _studentService;
@@ -27,7 +29,7 @@ namespace ElectronicJournal.Controllers
 
         [HttpGet]
         [Route("getStudent/{id}")]
-        public async Task<Student> GetAll(int id)
+        public async Task<Student> GetStident(int id)
         {
             var response = await _studentService.GetStudentById(id);
 

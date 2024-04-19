@@ -2,11 +2,13 @@
 using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Service.Interfaces;
 using ElectronicJournal.Domain.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ElectronicJournal.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ClassesController : ControllerBase
     {
         private readonly IClassService _classService;

@@ -1,6 +1,8 @@
 ﻿using ElectronicJournal.DAL.Interfaces;
+using ElectronicJournal.DAL.Repositories;
 using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Domain.Enum;
+using ElectronicJournal.Domain.Helpers;
 using ElectronicJournal.Domain.Response;
 using ElectronicJournal.Domain.ViewModels;
 using ElectronicJournal.Service.Interfaces;
@@ -27,8 +29,8 @@ namespace ElectronicJournal.Service.Implementations
                     Lessons = new(),
                     Login = model.Login,
                     MiddleName = model.MiddleName,
-                    Password = model.Password,
-                    Role = Role.Teacher,                   
+                    Password = HashPasswordHelper.HashPassword(model.Password),
+                    Role = (Role)model.Role,                   
                     Subjects = model.Subjects
                 };
 
@@ -119,6 +121,36 @@ namespace ElectronicJournal.Service.Implementations
                 return new BaseResponse<List<Teacher>>()
                 {
                     Description = $"[TeacherService.GetAllTeachers] - {ex.Message}",
+                    StatusCode = StatusCode.InternalServerError
+                };
+            }
+        }
+
+        public async Task<IBaseResponse<Teacher>> GetTeacherById(int id)
+        {
+            try
+            {
+                var teacher = await _teacherRepository.GetByIdAsync(id);
+
+                if (teacher == null)
+                    return new BaseResponse<Teacher>()
+                    {
+                        Description = "Такого учителя нет!",
+                        StatusCode = StatusCode.TeacherNotFound
+                    };
+
+                return new BaseResponse<Teacher>()
+                {
+                    Data = teacher,
+                    Description = "Учитель найден!",
+                    StatusCode = StatusCode.OK
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<Teacher>()
+                {
+                    Description = $"[TeacherService.GetTeacherById] - {ex.Message}",
                     StatusCode = StatusCode.InternalServerError
                 };
             }

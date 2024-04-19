@@ -15,6 +15,8 @@ namespace ElectronicJournal.Domain.ViewModels
 
         public string Password { get; set; }
 
+        public int Role {  get; set; }
+
         public List<Subject> Subjects { get; set; } = new();
     }
 }

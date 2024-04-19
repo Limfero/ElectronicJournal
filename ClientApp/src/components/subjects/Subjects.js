@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import ModalButton from "./ModalBtn";
+import ModalButton from "../ModalBtn";
 import { Button, Form, FormControl, InputGroup, Accordion } from "react-bootstrap";
+import { getData, postData, deleteData } from "../services/AccessAPI";
 
 const URL = `/api/subjects`;
 
@@ -11,19 +12,14 @@ const Subjects = () => {
     const [teachers, setTeachers] = useState([]);
 
     const getSubjects = async () => {
-        const options = {
-            method: 'GET',
-            headers: new Headers()
-        }
-
-        const result = await fetch(URL + `/getSubjects`, options);
-
-        if(result.ok){
-            const subjects = await result.json();
-            setSubjects(subjects)
-            return subjects;
-        }
-        return [];
+        getData(URL + `/getSubjects`).then(
+            (result) => {
+                if(result){
+                    setSubjects(result)
+                    return result;
+                }
+            }
+        )
     }
 
     const addSubject = async () => {
@@ -33,49 +29,35 @@ const Subjects = () => {
             teachers: teachers
         };
 
-        const headers = new Headers();
-        headers.set('Content-Type', 'application/json');
-
-        const options = {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(newSubject)
-        };
-
-        const result = await fetch(URL + "/createSubject", options);
-        if (result.ok){
-            const subject = await result.json();
-            allSubjects.push(subject);
-            setSubjects(allSubjects.slice());
-        }
+        postData(URL + "/createSubject", newSubject).then(
+            (result) =>{
+                if(result){
+                    allSubjects.push(result);
+                    setSubjects(allSubjects.slice());
+                }
+            }
+        )
     }
 
     const deleteSubject = (id) =>{
-        const options = {
-            method: 'DELETE',
-            headers: new Headers()
-        };
-
-        const result = fetch(URL + `/deleteSubject/${id}`, options);
-        if (result.ok){
-            setSubjects(allTeachers.filter(x => x.id !== id));
-        }
+        deleteData(URL + `/deleteSubject/${id}`).then(
+            (result) =>{
+                if(result){
+                    setSubjects(allTeachers.filter(x => x.id !== id));
+                }
+            }
+        )
     }
 
     const getTeachers = async () => {
-        const options = {
-            method: 'GET',
-            headers: new Headers()
-        }
-
-        const result = await fetch('/api/teachers/getTeachers', options);
-
-        if(result.ok){
-            const teachers = await result.json();
-            setAllTeacher(teachers)
-            return teachers;
-        }
-        return [];
+        getData('/api/teachers/getTeachers').then(
+            (result) => {
+                if(result){
+                    setAllTeacher(result)
+                    return result;
+                }
+            }
+        )
     }
 
     const changeTeachers = ({target: {value}}) => {

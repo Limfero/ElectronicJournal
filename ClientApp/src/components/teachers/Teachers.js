@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import ModalButton from "./ModalBtn";
+import ModalButton from "../ModalBtn";
 import { Button, Form, FormControl, InputGroup, Accordion} from "react-bootstrap";
+import { getData, postData, deleteData } from "../services/AccessAPI";
 
 const URL = `/api/teachers`;
 
@@ -11,31 +12,24 @@ const Teachers = () => {
     const [subjects, setSubjects] = useState([]);
 
     const getTeachers = async () => {
-        const options = {
-            method: 'GET',
-            headers: new Headers()
-        }
-
-        const result = await fetch(URL + '/getTeachers', options);
-
-        if(result.ok){
-            const teachers = await result.json();
-            setTeachers(teachers)
-            return teachers;
-        }
-        return [];
+        getData(URL + '/getTeachers').then(
+            (result) => {
+                if(result){
+                    setTeachers(result)
+                    return result;
+                }
+            }
+        )
     }
 
     const deleteTeacher = (id) =>{
-        const options = {
-            method: 'DELETE',
-            headers: new Headers()
-        };
-
-        const result = fetch(URL + `/deleteTeacher/${id}`, options);
-        if (result.ok){
-            setTeachers(allTeachers.filter(x => x.id !== id));
-        }
+        deleteData(URL + `/deleteTeacher/${id}`).then(
+            (result) =>{
+                if(result){
+                    setTeachers(allTeachers.filter(x => x.id !== id));
+                }
+            }
+        )
     }
 
     const addTeacher = async () => {
@@ -45,41 +39,29 @@ const Teachers = () => {
             middleName: document.getElementById('middleName').value,
             login: `T${1000000000 + (allTeachers[allTeachers.length - 1]?.id !== undefined ? allTeachers[allTeachers.length - 1].id : 0)}`,
             password: document.getElementById('password').value,
+            role: 1,
             subjects: subjects
         };
 
-        const headers = new Headers();
-        headers.set('Content-Type', 'application/json');
-
-        const options = {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(newTeacher)
-        };
-
-        const result = await fetch(URL + "/createTeacher", options);
-        if (result.ok){
-            const teacher = await result.json();
-            allTeachers.push(teacher);
-            setTeachers(allTeachers.slice());
-        }
+        postData(URL + "/createTeacher", newTeacher).then(
+            (result) =>{
+                if(result){
+                    allTeachers.push(result);
+                    setTeachers(allTeachers.slice());
+                }
+            }
+        )
     }
-
     
     const getSubjects = async () => {
-        const options = {
-            method: 'GET',
-            headers: new Headers()
-        }
-
-        const result = await fetch(`/api/subjects/getSubjects`, options);
-
-        if(result.ok){
-            const subjects = await result.json();
-            setAllSubjects(subjects)
-            return subjects;
-        }
-        return [];
+        getData(`/api/subjects/getSubjects`).then(
+            (result) => {
+                if(result){
+                    setAllSubjects(result)
+                    return result;
+                }
+            }
+        )
     }
 
     const changeSubjects = ({target: {value}}) => {

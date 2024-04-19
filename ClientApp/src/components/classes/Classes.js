@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import ModalButton from "./ModalBtn";
+import ModalButton from "../ModalBtn";
 import { Button, Form, FormControl, InputGroup, Accordion } from "react-bootstrap";
 import { NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import { getData, postData, deleteData } from "../services/AccessAPI";
 
 const URLClass = `/api/classes`;
 const URLStudent = `/api/students`;
@@ -13,19 +14,14 @@ const Classes = () => {
     const [allStudents, setStudents] = useState([]);
 
     const getClasses = async () => {
-        const options = {
-            method: 'GET',
-            headers: new Headers()
-        }
-
-        const result = await fetch(URLClass + `/getClasses`, options);
-
-        if(result.ok){
-            const classes = await result.json();
-            setClasses(classes)
-            return classes;
-        }
-        return [];
+        getData(URLClass + `/getClasses`).then(
+            (result) => {
+                if(result){
+                    setClasses(result)
+                    return result;
+                }
+            }
+        )
     };
 
     const addClass = async () => {
@@ -33,48 +29,35 @@ const Classes = () => {
             name: `${document.getElementById('name').value}`,
         };
 
-        const headers = new Headers();
-        headers.set('Content-Type', 'application/json');
-
-        const options = {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(newClass)
-        };
-
-        const result = await fetch(URLClass + "/createClass", options);
-        if (result.ok){
-            const _class = await result.json();
-            allClases.push(_class);
-            setClasses(allClases.slice());
-        }
+        postData(URLClass + `/createClass`, newClass).then(
+            (result) =>{
+                if(result){
+                    allClases.push(result);
+                    setClasses(allClases.slice());
+                }
+            }
+        )
     }
 
     const deleteClass = (id) => {
-        const options = {
-            method: 'DELETE',
-            headers: new Headers()
-        };
-
-        const result = fetch(URLClass + `/deleteClass/${id}`, options);
-        if (result.ok){
-            setClasses(allClases.filter(x => x.id !== id));
-        }
+        deleteData(URLClass + `/deleteClass/${id}`).then(
+            (result) =>{
+                if(result){
+                    setClasses(allClases.filter(x => x.id !== id));
+                }
+            }
+        )
     }
 
     const getStudents = async () => {
-        const options = {
-            method: 'GET',
-            headers: new Headers()
-        }
-
-        const result = await fetch(URLStudent + `/getStudents`, options);
-        if(result.ok){
-            const students = await result.json();
-            setStudents(students)
-            return students;
-        }
-        return [];
+        getData(URLStudent + `/getStudents`).then(
+            (result) => {
+                if(result){
+                    setStudents(result)
+                    return result;
+                }
+            }
+        )
     };
     
     const addStudent = async () => {
@@ -87,21 +70,17 @@ const Classes = () => {
             idClass: allClases.find(s => `${s.name}`=== `${document.getElementById('class').value}`).id,
         };
 
-        const headers = new Headers();
-        headers.set('Content-Type', 'application/json');
-
-        const options = {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(newStudent)
-        };
-
-        const result = await fetch(URLStudent + "/createStudent", options);
-        if (result.ok){
-            const student = await result.json();
-            allStudents.push(student);
-            setClasses(allStudents.slice());
-        }
+        postData(URLClass + `/createClass`, newStudent).then(
+            (result) =>{
+                if(result){
+                    allStudents.push(result);
+                    setClasses(allStudents.slice());
+                }
+                else{
+                    window.location.assign("/logout");
+                }
+            }
+        )
     }
 
     useEffect(() => {

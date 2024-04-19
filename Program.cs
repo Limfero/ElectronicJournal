@@ -1,10 +1,12 @@
 using ElectronicJournal.DAL;
 using ElectronicJournal.DAL.Interfaces;
 using ElectronicJournal.DAL.Repositories;
-using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Service.Implementations;
 using ElectronicJournal.Service.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
+using ElectronicJournal.Domain.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,21 @@ builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = AuthOptions.ISSUER,
+            ValidateAudience = true,
+            ValidAudience = AuthOptions.AUDIENCE,
+            ValidateLifetime = true,
+            IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+            ValidateIssuerSigningKey = true
+        };
+    });
 
 var connectionString = builder.Configuration.GetConnectionString("MSSQL");
 
@@ -48,6 +65,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 
 
 app.MapControllerRoute(

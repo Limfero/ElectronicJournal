@@ -1,5 +1,4 @@
 ﻿using ElectronicJournal.DAL.Interfaces;
-using ElectronicJournal.DAL.Repositories;
 using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Domain.Enum;
 using ElectronicJournal.Domain.Response;

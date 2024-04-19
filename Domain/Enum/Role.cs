@@ -1,13 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace ElectronicJournal.Domain.Enum
+﻿namespace ElectronicJournal.Domain.Enum
 {
     public enum Role
     {
-        [Display(Name = "Учитель")]
+        Student = 0,
+
         Teacher = 1,
 
-        [Display(Name = "Руководство")]
         Director = 2
     }
 }

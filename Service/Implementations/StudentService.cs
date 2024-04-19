@@ -1,6 +1,7 @@
 ﻿using ElectronicJournal.DAL.Interfaces;
 using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Domain.Enum;
+using ElectronicJournal.Domain.Helpers;
 using ElectronicJournal.Domain.Response;
 using ElectronicJournal.Domain.ViewModels;
 using ElectronicJournal.Service.Interfaces;
@@ -26,7 +27,7 @@ namespace ElectronicJournal.Service.Implementations
                     LastName = model.LastName,
                     Login = model.Login,
                     MiddleName = model.MiddleName,
-                    Password = model.Password,
+                    Password = HashPasswordHelper.HashPassword(model.Password),
                     IdClass = model.IdClass
                 };
 

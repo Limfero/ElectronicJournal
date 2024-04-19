@@ -13,5 +13,7 @@ namespace ElectronicJournal.Service.Interfaces
         Task<IBaseResponse<Teacher>> DeleteTeacher(int id);
 
         Task<IBaseResponse<Teacher>> UpdateTeacher(int id, TeacherViewModel model);
+
+        Task<IBaseResponse<Teacher>> GetTeacherById(int id);
     }
 }

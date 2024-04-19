@@ -1,12 +1,15 @@
 ﻿using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Domain.ViewModels;
+using ElectronicJournal.Service.Implementations;
 using ElectronicJournal.Service.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ElectronicJournal.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class TeachersController : ControllerBase
     {
         private readonly ITeacherService _teacherService;
@@ -21,6 +24,15 @@ namespace ElectronicJournal.Controllers
         public IEnumerable<Teacher> GetAll()
         {
             return _teacherService.GetAllTeachers().Data;
+        }
+
+        [HttpGet]
+        [Route("getTeacher/{id}")]
+        public async Task<Teacher> GetTeacher(int id)
+        {
+            var response = await _teacherService.GetTeacherById(id);
+
+            return response.Data;
         }
 
         [HttpPost]
