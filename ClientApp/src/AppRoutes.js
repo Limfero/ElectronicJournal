@@ -2,10 +2,11 @@ import Classes from "./components/classes/Classes";
 import Lessons from "./components/lessons/Lessons";
 import Subjects from "./components/subjects/Subjects";
 import Teachers from "./components/teachers/Teachers";
-import Student from "./components/student/Student";
 import Login from "./components/auth/Login";
 import Logout from "./components/auth/Logout";
 import Home from "./components/home/Home";
+import Scores from "./components/scores/Scores";
+import Student from "./components/student/Student";
 
 const AppRoutes = [
   {
@@ -39,6 +40,10 @@ const AppRoutes = [
   {
     path: '/logout',
     element: <Logout/>
+  },
+  {
+    path: '/scores',
+    element: <Scores/>
   }
 ];
 

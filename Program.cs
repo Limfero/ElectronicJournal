@@ -10,8 +10,6 @@ using ElectronicJournal.Domain.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<ILessonRepository, LessonRepository>();
@@ -28,6 +26,9 @@ builder.Services.AddScoped<ISubjectService, SubjectService>();
 
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IStudentService, StudentService>();
+
+builder.Services.AddScoped<IScoreRepository, ScoreRepository>();
+builder.Services.AddScoped<IScoreService, ScoreService>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -55,10 +56,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

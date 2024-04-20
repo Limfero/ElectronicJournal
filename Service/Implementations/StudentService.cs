@@ -1,4 +1,5 @@
-﻿using ElectronicJournal.DAL.Interfaces;
+﻿using Azure;
+using ElectronicJournal.DAL.Interfaces;
 using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Domain.Enum;
 using ElectronicJournal.Domain.Helpers;
@@ -88,6 +89,11 @@ namespace ElectronicJournal.Service.Implementations
             try
             {
                 var students = _studentRepository.GetAll().ToList();
+
+                foreach (var student in students)
+                {
+                    student.Class.Students = new();
+                }
 
                 if (students == null)
                 {

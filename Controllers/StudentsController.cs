@@ -22,7 +22,7 @@ namespace ElectronicJournal.Controllers
 
         [HttpGet]
         [Route("getStudents")]
-        public List<Student> GetAll()
+        public IEnumerable<Student> GetAll()
         {
             return _studentService.GetAllStudent().Data;
         }

@@ -5,6 +5,8 @@ namespace ElectronicJournal.Service.Interfaces
 {
     public interface IScoreService
     {
-        Task<IBaseResponse<List<Score>>> CreateRangeScore(List<string> scores);
+        Task<IBaseResponse<List<Score>>> CreateRangeScore(string[] scores);
+
+        IBaseResponse<List<Score>> GetAllScores();
     }
 }

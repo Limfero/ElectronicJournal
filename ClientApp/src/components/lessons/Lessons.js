@@ -20,7 +20,7 @@ const Lessons = () => {
     const [teacher, setTeacher] = useState();
 
     const getSchedule = async () => {
-        let date = document.getElementById("date").value 
+        let date = document.getElementById("currentDate").value 
         let idClass
 
         if(user.usersRole === "0") 
@@ -105,7 +105,7 @@ const Lessons = () => {
     }
 
     const getTeachers = async () => {
-        getData('api/teachers/getTeachers').then(
+        getData('/api/teachers/getTeachers').then(
             (result) => {
                 if(result){
                     setTeachers(result);
@@ -116,17 +116,23 @@ const Lessons = () => {
     }
 
     const createScore = async () => {
-        postData(`/api/scores/createScores`, allScoreToAdd)
+        postData(`/api/scores/createScores`, allScoreToAdd).then(
+            (result) => {
+                if(result){
+                    return result;
+                } 
+            }
+        )
     }
 
-    const changeTeacher = ({target: {value}}) => {
+    const changeTeacher = (value) => {
         if(value !== undefined){
             setTeacher(allTeachers.find(s => `${s.id}` === value));
             setSubject(undefined);
         }
     }
 
-    const changeSubject = ({target: {value}}) => {
+    const changeSubject = (value) => {
         if(value !== undefined){
             setSubject(allSubjects.find(s => `${s.id}` === value));
             setTeacher(undefined);
@@ -140,12 +146,12 @@ const Lessons = () => {
                     <div style={{display: 'flex'}}>
                         <InputGroup className="ms-3">
                             <InputGroup.Text>Дата</InputGroup.Text>
-                            <Form.Control onChange={getSchedule} type='date' id="date"/>
+                            <Form.Control onChange={getSchedule} type='date' id="currentDate"/>
                         </InputGroup>
                         <Form.Select onChange={getSchedule} className="ms-3" id="classId" defaultValue="">
                             <option selected>Класс</option>
                             {allClasses.map(_class => (
-                                <option value={_class.id}>{_class.name}</option>
+                                <option key={_class.id} value={_class.id}>{_class.name}</option>
                             ))}
                         </Form.Select>        
                     </div>
@@ -165,13 +171,6 @@ const Lessons = () => {
                                         lessons={value[1]} 
                                         addLesson={addLesson}
                                         addScore={createScore}
-                                        allClasses={allClasses} 
-                                        allSubjects={allSubjects} 
-                                        allTeachers = {allTeachers}
-                                        teacher={teacher} 
-                                        subject={subject} 
-                                        changeSubject={changeSubject} 
-                                        changeTeacher={changeTeacher}
                                         getButtonAdd={getButtonAdd}
                                         buttonAddScore={buttonAddScore}
                                     />)} 
@@ -189,7 +188,7 @@ const Lessons = () => {
                     <div style={{display: 'flex'}}>
                         <InputGroup className="ms-3">
                             <InputGroup.Text>Дата</InputGroup.Text>
-                            <Form.Control onChange={getSchedule} type='date' id="date"/>
+                            <Form.Control onChange={getSchedule} type='date' id="currentDate"/>
                         </InputGroup>
                         <Form.Select onChange={getSchedule} className="ms-3" id="classId">
                             <option selected>Класс</option>
@@ -214,13 +213,6 @@ const Lessons = () => {
                                         lessons={value[1]} 
                                         addLesson={addLesson}
                                         addScore={createScore} 
-                                        allClasses={allClasses} 
-                                        allSubjects={allSubjects} 
-                                        allTeachers = {allTeachers}
-                                        teacher={teacher} 
-                                        subject={subject} 
-                                        changeSubject={changeSubject} 
-                                        changeTeacher={changeTeacher}
                                         getButtonAdd={getButtonAdd}
                                         buttonAddScore={buttonAddScore}
                                     />)}
@@ -237,7 +229,7 @@ const Lessons = () => {
                 <div style={{display: 'flex'}}>
                     <InputGroup className="ms-3">
                         <InputGroup.Text>Дата</InputGroup.Text>
-                        <Form.Control onChange={getSchedule} type='date' id="date"/>
+                        <Form.Control onChange={getSchedule} type='date' id="currentDate"/>
                     </InputGroup>
                 </div>
 
@@ -256,13 +248,6 @@ const Lessons = () => {
                                     lessons={value[1]} 
                                     addLesson={addLesson}
                                     addScore={createScore}
-                                    allClasses={allClasses} 
-                                    allSubjects={allSubjects} 
-                                    allTeachers = {allTeachers}
-                                    teacher={teacher} 
-                                    subject={subject} 
-                                    changeSubject={changeSubject} 
-                                    changeTeacher={changeTeacher}
                                     getButtonAdd={getButtonAdd}
                                     buttonAddScore={buttonAddScore}
                                 />)}
@@ -274,7 +259,7 @@ const Lessons = () => {
             )
         }
     }
-    const getButtonAdd = (date, addAction, allTeachers, allClasses, allSubjects, teacher, subject, changeSubject, changeTeacher) => {
+    const getButtonAdd = (date, addAction) => {
         if(user.userRole === "2"){
             return(
                 <tr>
@@ -288,7 +273,7 @@ const Lessons = () => {
                                 <fieldset disabled>
                                     <InputGroup className="mb-3">
                                         <InputGroup.Text>Дата</InputGroup.Text>
-                                        <Form.Control id="correctDate" placeholder={date} />
+                                        <Form.Control id="correctDate" defaultValue={date} />
                                     </InputGroup>
                                     <InputGroup className="mb-3">
                                         <InputGroup.Text>Класс</InputGroup.Text>
@@ -312,14 +297,14 @@ const Lessons = () => {
                                         <Form.Control id="description" type="text" as="textarea" aria-label="Описание"/>
                                     </InputGroup>
                                     <InputGroup className="mb-3">
-                                        <Form.Select onChange={changeSubject} id="idSubject" aria-label="Предмет">
+                                        <Form.Select onChange={(e) => changeSubject(e.target.value)} id="idSubject" aria-label="Предмет">
                                             <option selected>Предмет</option>
                                             {(teacher === undefined ? allSubjects : teacher.subjects).map((s) =>
                                             <option value={s.id} key={s.id}>{s.name}</option>) }            
                                         </Form.Select>
                                     </InputGroup>
                                     <InputGroup className="mb-3" id="teachers" disabled>
-                                        <Form.Select onChange={changeTeacher} id="idTeacher" aria-label="Учитель" > 
+                                        <Form.Select onChange={(e) => changeTeacher(e.target.value)} id="idTeacher" aria-label="Учитель" > 
                                             <option selected>Учитель</option> 
                                             {(subject === undefined ? allTeachers : subject.teachers).map((t) => 
                                             <option value={t.id} id={t.id}>{`${t.firstName} ${t.lastName} ${t.middleName}`}</option>)} 
@@ -340,41 +325,55 @@ const Lessons = () => {
     }
 
     const buttonAddScore = (date, addAction, lessonId) => {
-        let students = allStudents.length > 1 ? allStudents.filter((item) => item.idClass === allClasses.find(value => `${value.id}` === document.getElementById("classId").value).id) : allStudents
+        let students = allStudents.filter((item) => item.idClass === (allClasses.find(value => `${value.id}` === document.getElementById("classId").value)).id)
 
         if(user.userRole !== "0"){
-            <ModalButton 
-                btnName={'Добавить оценку'} 
-                title={'Создание оценки'}
-                clearList={() => {}}
-                modalContent={
-                    <Form>
-                    <fieldset disabled>
-                        <InputGroup className="mb-3">
-                            <InputGroup.Text>Дата</InputGroup.Text>
-                            <Form.Control id="correctDate" placeholder={date} />
-                        </InputGroup>
-                        <InputGroup className="mb-3">
-                            <InputGroup.Text>Класс</InputGroup.Text>
-                            <Form.Control id="disabledTextInput" placeholder={(allClasses.find(value => `${value.id}` === document.getElementById("classId").value)).name}/>
-                        </InputGroup>
-                    </fieldset>
-                        <ul>
-                            {students.map(student => (
-                                <li>{`${student.firstName} ${student.lastName} ${student.middleName} ${choiceScore(student.id, lessonId)}`}</li>
-                            ))}
-                        </ul>
-                        <Button type="submit" onClick={() => addAction()}>Cохранить!</Button>
-                    </Form>                              
-                }
-            />
+            return(
+                <ModalButton 
+                    btnName={'Добавить оценку'} 
+                    title={'Создание оценки'}
+                    clearList={() => {}}
+                    modalContent={
+                        <Form>
+                        <fieldset disabled>
+                            <InputGroup className="mb-3">
+                                <InputGroup.Text>Дата</InputGroup.Text>
+                                <Form.Control id="correctDate" defaultValue={date} />
+                            </InputGroup>
+                            <InputGroup className="mb-3">
+                                <InputGroup.Text>Класс</InputGroup.Text>
+                                <Form.Control id="disabledTextInput" placeholder={(allClasses.find(value => `${value.id}` === document.getElementById("classId").value)).name}/>
+                            </InputGroup>
+                        </fieldset>
+                            <table className="table table-bordered">
+                                <thead>
+                                    <tr>
+                                    <th scope="col">ФИО</th>
+                                    <th scope="col">Оценка</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {students.map(student => (
+                                        <tr>
+                                            <td>{`${student.firstName} ${student.lastName} ${student.middleName}`}</td>
+                                            <td>{choiceScore(student.id, lessonId)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+
+                            <Button type="submit" onClick={() => addAction()}>Cохранить!</Button>
+                        </Form>                              
+                    }
+                />
+            )
         }
     }
 
     const choiceScore = (idStudent, lessonId) =>{
         return(
-            <Form.Select onChange={addScore(idStudent, lessonId)} id="score" aria-label="Оценка">
-                <option>0</option>
+            <Form.Select onChange={(e) => addScore(idStudent, lessonId, e.target.value)} id="score" aria-label="Оценка">
+                <option selected value="0">Выберете оценку</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
                 <option value="4">4</option>
@@ -383,8 +382,12 @@ const Lessons = () => {
         )
     }
 
-    const addScore = (idStudent, lessonId) => {
-        setScore(addScore.push(`${idStudent}/${lessonId}/${document.getElementById("score").value}`))
+    function addScore(idStudent, lessonId, value){
+        setScore(allScoreToAdd.filter((item) => !item.includes(`${idStudent}/${lessonId}/`)))
+
+        allScoreToAdd.push(`${idStudent}/${lessonId}/${value}`)
+
+        setScore(allScoreToAdd);
     }
  
     useEffect(() => {
@@ -401,7 +404,7 @@ const Lessons = () => {
 
 export default Lessons;
 
-const LessonsItem = ({lessons, date, addLesson, addScore, allTeachers, allClasses, allSubjects, teacher, subject, changeSubject, changeTeacher, getButtonAdd, buttonAddScore}) => {
+const LessonsItem = ({lessons, date, addLesson, addScore, getButtonAdd, buttonAddScore}) => {
     return(
         <tr>
             <th scope="row">{date}</th>
@@ -425,7 +428,7 @@ const LessonsItem = ({lessons, date, addLesson, addScore, allTeachers, allClasse
                             <td>{buttonAddScore(date, addScore, lesson.id)}</td>
                         </tr>
                     ))}
-                    {getButtonAdd(date, addLesson, allTeachers, allClasses, allSubjects, teacher, subject, changeSubject, changeTeacher)}                 
+                    {getButtonAdd(date, addLesson)}                 
                 </tbody>
             </table>
         </tr>
