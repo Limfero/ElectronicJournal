@@ -19,23 +19,16 @@ namespace ElectronicJournal.Controllers
 
         [HttpGet]
         [Route("getScores")]
-        public IEnumerable<Score> GetAll()
+        public List<Score> GetAll()
         {
             return _scoreService.GetAllScores().Data;
         }
 
         [HttpGet]
         [Route("getScoresByIdStudent/{id}")]
-        public IEnumerable<Score> GetScoresByIdStudent(int id)
+        public List<Score> GetScoresByIdStudent(int id)
         {
-            return _scoreService.GetAllScores().Data.Where(score => score.IdStudent == id);
-        }
-
-        [HttpGet]
-        [Route("getScoresByIdClass/{id}")]
-        public IEnumerable<Score> GetScoresByIdClass(int id)
-        {
-            return _scoreService.GetAllScores().Data.Where(score => score.Student.Class.Id == id);
+            return _scoreService.GetAllScores().Data.Where(score => score.IdStudent == id).ToList();
         }
 
         [HttpPost]

@@ -25,7 +25,19 @@ namespace ElectronicJournal.Service.Implementations
 
                 foreach (var @class in response) 
                 {
-                    @class.Students.ForEach(student => { student.Class = null; });
+                    @class.Students.ForEach(student => 
+                    {
+                        student.Class = null;
+
+                        student.Scores.ForEach(score => 
+                        {
+                            score.Student = null;
+                            score.Lesson.Class = null;
+                            score.Lesson.Scores = new();
+                            score.Lesson.Subject.Lessons = new();
+                        }); 
+                    });
+
                     @class.Lessons = new();
                 }
 

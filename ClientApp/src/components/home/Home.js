@@ -11,7 +11,8 @@ export default class Home extends Component {
       this.state = {
           lastName: "",
           firstName: "",
-          middleName: ""
+          middleName: "",
+          image: ""
       };
     }
 
@@ -25,6 +26,7 @@ export default class Home extends Component {
                     firstName: result.firstName,
                     lastName: result.lastName,
                     middleName: result.middleName,
+                    image: result.imagePath
                 })
             }
             else{
@@ -44,6 +46,7 @@ export default class Home extends Component {
       return(
           <div>
               <div className="d-flex justify-content-between">
+              <img src={this.image} class="img-thumbnail" alt="avatar"/>
                 <div>
                   <h2>{this.state.firstName}</h2>
                   <h2>{this.state.lastName}</h2>

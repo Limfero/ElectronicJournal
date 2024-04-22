@@ -1,17 +1,19 @@
 ﻿using ElectronicJournal.DAL.Interfaces;
-using ElectronicJournal.DAL.Repositories;
 using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Domain.Enum;
 using ElectronicJournal.Domain.Helpers;
 using ElectronicJournal.Domain.Response;
 using ElectronicJournal.Domain.ViewModels;
 using ElectronicJournal.Service.Interfaces;
+using System.Reflection;
 
 namespace ElectronicJournal.Service.Implementations
 {
     public class TeacherService : ITeacherService
     {
         private readonly ITeacherRepository _teacherRepository;
+        private static string _currentDirectory = Assembly.GetExecutingAssembly().Location;
+        private readonly string _path = _currentDirectory[0.._currentDirectory.IndexOf("ElectronicJournal")] + "ElectronicJournal\\Image\\";
 
         public TeacherService(ITeacherRepository teacherRepository)
         {
@@ -22,6 +24,17 @@ namespace ElectronicJournal.Service.Implementations
         {
             try
             {
+                var image = model.Image;
+
+                byte[] imageData = null;
+                using (var binaryReader = new BinaryReader(image.OpenReadStream()))
+                {
+                    imageData = binaryReader.ReadBytes((int)image.Length);
+                }
+                byte[] picture = imageData;
+
+                File.WriteAllBytes(_path + $"{model.Login}.png", picture);
+
                 var teacher = new Teacher()
                 {
                     FirstName = model.FirstName,
@@ -29,6 +42,7 @@ namespace ElectronicJournal.Service.Implementations
                     Lessons = new(),
                     Login = model.Login,
                     MiddleName = model.MiddleName,
+                    ImagePath = _path + $"{model.Login}.png",
                     Password = HashPasswordHelper.HashPassword(model.Password),
                     Role = (Role)model.Role,                   
                     Subjects = model.Subjects
@@ -131,6 +145,16 @@ namespace ElectronicJournal.Service.Implementations
             try
             {
                 var teacher = await _teacherRepository.GetByIdAsync(id);
+
+                teacher.Lessons.ForEach(lesson =>
+                {
+                    lesson.Teacher = null;
+                });
+
+                teacher.Subjects.ForEach(subject =>
+                {
+                    subject.Teachers = new();
+                });
 
                 if (teacher == null)
                     return new BaseResponse<Teacher>()

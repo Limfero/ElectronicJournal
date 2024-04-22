@@ -19,6 +19,9 @@ namespace ElectronicJournal.DAL.Repositories
         {
             return _dbContext.Classes
                 .Include(c => c.Students)
+                .ThenInclude(student => student.Scores)
+                .ThenInclude(score => score.Lesson)
+                .ThenInclude(lesson => lesson.Subject)
                 .Include(c => c.Lessons);
         }
     }

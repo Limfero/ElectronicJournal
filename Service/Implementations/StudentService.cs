@@ -1,17 +1,19 @@
-﻿using Azure;
-using ElectronicJournal.DAL.Interfaces;
+﻿using ElectronicJournal.DAL.Interfaces;
 using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Domain.Enum;
 using ElectronicJournal.Domain.Helpers;
 using ElectronicJournal.Domain.Response;
 using ElectronicJournal.Domain.ViewModels;
 using ElectronicJournal.Service.Interfaces;
+using System.Reflection;
 
 namespace ElectronicJournal.Service.Implementations
 {
     public class StudentService : IStudentService
     {
         private readonly IStudentRepository _studentRepository;
+        private static string _currentDirectory = Assembly.GetExecutingAssembly().Location;
+        private readonly string _path = _currentDirectory[0.._currentDirectory.IndexOf("ElectronicJournal")] + "ElectronicJournal\\Image\\";
 
         public StudentService(IStudentRepository studentRepository)
         {
@@ -22,12 +24,24 @@ namespace ElectronicJournal.Service.Implementations
         {
             try
             {
+                var image = model.Image;
+
+                byte[] imageData = null;
+                using (var binaryReader = new BinaryReader(image.OpenReadStream()))
+                {
+                    imageData = binaryReader.ReadBytes((int)image.Length);
+                }
+                byte[] picture = imageData;
+
+                File.WriteAllBytes(_path + $"{model.Login}.png", picture);
+
                 var student = new Student()
                 {
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     Login = model.Login,
                     MiddleName = model.MiddleName,
+                    ImagePath = _path + $"{model.Login}.png",
                     Password = HashPasswordHelper.HashPassword(model.Password),
                     IdClass = model.IdClass
                 };
@@ -93,6 +107,7 @@ namespace ElectronicJournal.Service.Implementations
                 foreach (var student in students)
                 {
                     student.Class.Students = new();
+                    student.Scores.ForEach(score => score.Student = null);
                 }
 
                 if (students == null)
@@ -127,6 +142,15 @@ namespace ElectronicJournal.Service.Implementations
             try
             {
                 var student = await _studentRepository.GetByIdAsync(id);
+
+                student.Class.Students = new();
+                student.Scores.ForEach(score => 
+                {
+                    score.Student = null;
+                    score.Lesson.Scores = new();
+                    score.Lesson.Class = new();
+                    score.Lesson.Subject.Lessons = new();
+                });
 
                 if (student == null)
                     return new BaseResponse<Student>()

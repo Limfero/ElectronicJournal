@@ -10,6 +10,8 @@
 
         public string MiddleName { get; set; }
 
+        public string ImagePath { get; set; }
+
         public string Login { get; set; }
 
         public string Password { get; set; }

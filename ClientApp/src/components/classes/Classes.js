@@ -70,14 +70,11 @@ const Classes = () => {
             idClass: allClases.find(s => `${s.name}`=== `${document.getElementById('class').value}`).id,
         };
 
-        postData(URLClass + `/createClass`, newStudent).then(
+        postData(URLStudent + `/createStudent`, newStudent).then(
             (result) =>{
                 if(result){
                     allStudents.push(result);
-                    setClasses(allStudents.slice());
-                }
-                else{
-                    window.location.assign("/logout");
+                    setStudents(allStudents.slice());
                 }
             }
         )

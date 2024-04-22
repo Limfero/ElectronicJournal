@@ -31,7 +31,9 @@ namespace ElectronicJournal.DAL.Repositories
 
         public async Task<Teacher> GetByIdAsync(int id)
         {
-            return await _dbContext.Teachers.FirstOrDefaultAsync(teacher => teacher.Id == id);
+            return await _dbContext.Teachers
+                .Include(t => t.Subjects)
+                .FirstOrDefaultAsync(teacher => teacher.Id == id);
         }
     }
 }

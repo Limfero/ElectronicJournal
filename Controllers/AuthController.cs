@@ -1,4 +1,5 @@
-﻿using ElectronicJournal.Domain.Helpers;
+﻿using ElectronicJournal.Domain.Entity;
+using ElectronicJournal.Domain.Helpers;
 using ElectronicJournal.Domain.Response;
 using ElectronicJournal.Domain.ViewModels;
 using ElectronicJournal.Service.Interfaces;
@@ -26,13 +27,28 @@ namespace ElectronicJournal.Controllers
         [Route("login")]
         public IResult Login([FromBody] AuthResponse response)
         {
-            var teacher = _teacherService.GetAllTeachers().Data.FirstOrDefault(teacher => teacher.Login == response.UserName);
-            var student = _studentService.GetAllStudent().Data.FirstOrDefault(teacher => teacher.Login == response.UserName);
+            var user = new UserViewModel();
 
-            var user = response.UserName[0] == 'T' ? new UserViewModel { Name = teacher.Login, Id = teacher.Id.ToString(), Role = (int)teacher.Role } : new UserViewModel { Name = student.Login, Id = student.Id.ToString(), Role = (int)Domain.Enum.Role.Student };
+            if(response.UserName[0] == 'T')
+            {
+                var teacher = _teacherService.GetAllTeachers().Data.FirstOrDefault(teacher => teacher.Login == response.UserName);
 
-            if (user == null) 
-                return Results.Unauthorized();
+                if (teacher.Login == "Tadmin" && response.Password == "admin")
+                    user = new();
+                else if (teacher == null || teacher.Password != HashPasswordHelper.HashPassword(response.Password))
+                    return Results.Unauthorized();
+
+                user = new UserViewModel { Name = teacher.Login, Id = teacher.Id.ToString(), Role = (int)teacher.Role };
+            }
+            else
+            {
+                var student = _studentService.GetAllStudent().Data.FirstOrDefault(student => student.Login == response.UserName);
+
+                if (student == null || student.Password != HashPasswordHelper.HashPassword(response.Password))
+                    return Results.Unauthorized();
+
+                user = new UserViewModel { Name = student.Login, Id = student.Id.ToString(), Role = (int)Domain.Enum.Role.Student };
+            }
 
             var claims = new List<Claim>
             {

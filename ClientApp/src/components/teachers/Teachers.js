@@ -10,6 +10,7 @@ const Teachers = () => {
     const [allTeachers, setTeachers] = useState([]);
     const [allSubjects, setAllSubjects] = useState([]);
     const [subjects, setSubjects] = useState([]);
+    const [file, setFile] = useState()
 
     const getTeachers = async () => {
         getData(URL + '/getTeachers').then(
@@ -33,12 +34,17 @@ const Teachers = () => {
     }
 
     const addTeacher = async () => {
+
+        const formData = new FormData()
+        formData.append("image", file)
+
         const newTeacher = {
             firstName: document.getElementById('firstName').value,
             lastName: document.getElementById('lastName').value,
             middleName: document.getElementById('middleName').value,
             login: `T${1000000000 + (allTeachers[allTeachers.length - 1]?.id !== undefined ? allTeachers[allTeachers.length - 1].id : 0)}`,
             password: document.getElementById('password').value,
+            image: formData,
             role: 1,
             subjects: subjects
         };
@@ -105,6 +111,10 @@ const Teachers = () => {
                     <InputGroup className="mb-3">
                         <InputGroup.Text>Пароль</InputGroup.Text>
                         <FormControl id="password" type="text"></FormControl>
+                    </InputGroup>
+                    <InputGroup className="mb-3">
+                        <InputGroup.Text>Аватарка</InputGroup.Text>
+                        <input className="form-control form-control-sm" id="image" type="file" accept="image/*" onChange={e => setFile(e.target.files[0])}/>
                     </InputGroup>
                     <InputGroup className="mb-3">
                         <InputGroup.Text>Предметы</InputGroup.Text>                            

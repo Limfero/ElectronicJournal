@@ -97,13 +97,12 @@ namespace ElectronicJournal.Service.Implementations
             {
                 var response = _subjectRepository.GetAll().ToList();
 
-                foreach (var subject in response)
+                response.ForEach(subject =>
                 {
+                    subject.Teachers.ForEach(teacher => teacher.Subjects = new());
                     subject.Lessons = new();
-                    foreach (var teacher in subject.Teachers)
-                        teacher.Subjects.Clear();
-                }
-
+                });
+               
                 if (response == null)
                 {
                     return new BaseResponse<List<Subject>>()

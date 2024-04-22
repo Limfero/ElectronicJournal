@@ -7,7 +7,7 @@ import SessionManager from "../auth/SessionManager";
 
 const URL = `/api/lessons`;
 const fullDate = new Date();
-const user = SessionManager.getUser();
+const User = SessionManager.getUser();
 
 const Lessons = () => {
     const [allLessons, setLessons] = useState([]);
@@ -18,13 +18,15 @@ const Lessons = () => {
     const [allScoreToAdd, setScore] = useState([]);
     const [subject, setSubject] = useState();
     const [teacher, setTeacher] = useState();
+    const [idClasses, setIdClass] = useState();
 
     const getSchedule = async () => {
         let date = document.getElementById("currentDate").value 
         let idClass
 
-        if(user.usersRole === "0") 
-            idClass = getIdClass()
+        if(User.userRole === "0"){
+            idClass = idClasses;
+        }
         else
             idClass = document.getElementById("classId").value
 
@@ -39,10 +41,10 @@ const Lessons = () => {
     }
 
     const getIdClass = async () => {
-        getData(URL + `/getStudent/${user.userId}`).then(
+        getData(`/api/students/getStudent/${User.userId}`).then(
             (result) => {
                 if(result){
-                    return(result.class.id)
+                    setIdClass(result.class.id)
                 }
             }
         )
@@ -128,7 +130,6 @@ const Lessons = () => {
     const changeTeacher = (value) => {
         if(value !== undefined){
             setTeacher(allTeachers.find(s => `${s.id}` === value));
-            setSubject(undefined);
         }
     }
 
@@ -140,7 +141,7 @@ const Lessons = () => {
     }
 
     const getTable = () => {
-        if(user.userRole === "2"){
+        if(User.userRole === "2"){
             return(
                 <div> 
                     <div style={{display: 'flex'}}>
@@ -181,8 +182,15 @@ const Lessons = () => {
                 </div>
             )
         }
-        else if(user.userRole === "1"){
-            let lesson = allLessons.length > 1 ? allLessons.filter((item) => item.idTeacher === user.userId) : allLessons;
+        else if(User.userRole === "1"){
+            let lessons = allLessons;
+
+            if(Object.entries(allLessons).length > 1){
+                lessons = Object.entries(allLessons).map((value => value[1]))
+                let lesson = lessons.map(lessons => lessons.filter((item) => item.idTeacher === Number(User.userId)))
+                lessons = Object.entries(allLessons)[1] = lesson
+            }
+
             return(
                 <div> 
                     <div style={{display: 'flex'}}>
@@ -208,7 +216,7 @@ const Lessons = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {Object.entries(lesson).map((value) => <LessonsItem key={value[1].id} 
+                                    {Object.entries(lessons).map((value) => <LessonsItem key={value[1].id} 
                                         date={value[0]} 
                                         lessons={value[1]} 
                                         addLesson={addLesson}
@@ -260,7 +268,7 @@ const Lessons = () => {
         }
     }
     const getButtonAdd = (date, addAction) => {
-        if(user.userRole === "2"){
+        if(User.userRole === "2"){
             return(
                 <tr>
                     <td colSpan="4">
@@ -324,10 +332,9 @@ const Lessons = () => {
         }
     }
 
-    const buttonAddScore = (date, addAction, lessonId) => {
-        let students = allStudents.filter((item) => item.idClass === (allClasses.find(value => `${value.id}` === document.getElementById("classId").value)).id)
-
-        if(user.userRole !== "0"){
+    const buttonAddScore = (date, addAction, lesson) => {
+        if(User.userRole !== "0"){
+            let students = allStudents.filter((item) => item.idClass === (allClasses.find(value => `${value.id}` === document.getElementById("classId").value)).id)
             return(
                 <ModalButton 
                     btnName={'Добавить оценку'} 
@@ -348,25 +355,29 @@ const Lessons = () => {
                             <table className="table table-bordered">
                                 <thead>
                                     <tr>
-                                    <th scope="col">ФИО</th>
-                                    <th scope="col">Оценка</th>
+                                        <th scope="col">ФИО</th>
+                                        <th scope="col">Оценка</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {students.map(student => (
                                         <tr>
                                             <td>{`${student.firstName} ${student.lastName} ${student.middleName}`}</td>
-                                            <td>{choiceScore(student.id, lessonId)}</td>
+                                            <td>{choiceScore(student.id, lesson.id)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
-
                             <Button type="submit" onClick={() => addAction()}>Cохранить!</Button>
                         </Form>                              
                     }
                 />
             )
+        }
+        else{
+            var score =lesson.scores.find(item => item.idStudent == User.userId);
+
+            return(score === undefined ? "" : score.grade)
         }
     }
 
@@ -395,6 +406,7 @@ const Lessons = () => {
         getSubjects();
         getTeachers();
         getStudents();
+        getIdClass(User.userId);
     }, [])
 
     return(
@@ -412,10 +424,10 @@ const LessonsItem = ({lessons, date, addLesson, addScore, getButtonAdd, buttonAd
                 <thead className ="thead-dark">
                     <tr>
                         <th scope="col" className ="col-md-1">Время</th>
-                        <th scope="col">Предмет</th>
-                        <th scope="col">Кабинет</th>
-                        <th scope="col">Преподаватель</th>
-                        <th scope="col">Оценка</th>
+                        <th scope="col" className ="col-md-2">Предмет</th>
+                        <th scope="col" className ="col-md-1">Кабинет</th>
+                        <th scope="col" className ="col-md-3">Преподаватель</th>
+                        <th scope="col" className ="col-md-1">Оценка</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -425,7 +437,7 @@ const LessonsItem = ({lessons, date, addLesson, addScore, getButtonAdd, buttonAd
                             <td>{lesson.subject?.name}</td>
                             <td>{lesson.classRoom}</td>
                             <td>{lesson.teacher?.lastName} {lesson.teacher?.firstName} {lesson.teacher?.middleName}</td>
-                            <td>{buttonAddScore(date, addScore, lesson.id)}</td>
+                            <td>{buttonAddScore(date, addScore, lesson)}</td>
                         </tr>
                     ))}
                     {getButtonAdd(date, addLesson)}                 

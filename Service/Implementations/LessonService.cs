@@ -124,8 +124,9 @@ namespace ElectronicJournal.Service.Implementations
                             continue;
 
                     lessonsToAdd.Add(lesson);
+                    dateModel = dateModel.AddDays(dayInWeek);
                 }
-                while (dateModel.AddDays(dayInWeek) <= model.UntilWhatDate);
+                while (dateModel <= model.UntilWhatDate);
 
                 var response = await _lessonRepository.CreateRangeAsync(lessonsToAdd);
 

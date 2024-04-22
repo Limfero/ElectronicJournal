@@ -12,20 +12,19 @@ namespace ElectronicJournal.DAL.Repositories
 
         public async Task<Student> GetByIdAsync(int id)
         {
-            var student = await _dbContext.Students
+            return await _dbContext.Students
                 .Include(student => student.Class)
                 .Include(student => student.Scores)
+                .ThenInclude(score => score.Lesson)
+                .ThenInclude(lesson => lesson.Subject)
                 .FirstOrDefaultAsync(student => student.Id == id);
-
-            student.Class.Students = new();
-            student.Scores.ForEach(s => s.Student = null);
-
-            return student;
         }
 
         public override IQueryable<Student> GetAll()
         {
-            return _dbContext.Students.Include(student => student.Scores).Include(student => student.Class);
+            return _dbContext.Students
+                .Include(student => student.Scores)
+                .Include(student => student.Class);
         }
     }
 }

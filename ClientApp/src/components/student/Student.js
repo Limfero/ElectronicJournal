@@ -3,6 +3,7 @@ import { getData } from "../services/AccessAPI";
 import { useParams } from "react-router-dom";
 
 const URL = '/api/students'
+const URLSubjects = `/api/subjects`;
 
 function withParams(Component) {
     return (props) => <Component {...props} params={useParams()} />;
@@ -16,6 +17,8 @@ class Student extends Component {
             firstName: "",
             middleName: "",
             className: "",
+            scores: [],
+            allSubject: [],
             scores: [],
             loading: true
         };
@@ -38,27 +41,55 @@ class Student extends Component {
                         loading: false
                     })
                 }
-                else{
-                    window.location.assign("/logout");
+            }
+        )
+
+        getData(URLSubjects + `/getSubjects`).then(
+            (result) => {
+                if(result){
+                    this.setState({
+                        allSubject: result
+                    })
                 }
             }
         )
     }
 
-    getScores(allScores){
+
+    getScores(scores){
         const newScores = new Map();
 
-        allScores.forEach(element => {
-            if(newScores.get(element.subject.name))
-                newScores[element.subject.name] = `${newScores[element.subject.name]} ${element.grade}`
-            else
-                newScores.set(element.subject.name, element)
+        this.state.allSubject.forEach(element => {
+            newScores.set(element.name, [])
+        })
+
+        scores.forEach(element => {
+            if(newScores.has(element.lesson.subject.name))
+                newScores.get(element.lesson.subject.name).push(element.grade)
         });
 
-        return newScores;
+        return newScores
+    }
+
+    getStringScore(scores){
+        let allScores = ""
+
+        scores.map(value => allScores += value + " ")
+
+        return allScores;
+    }
+
+    getAwerrageScore(scores){
+        let averrageScore = 0;
+
+        scores.map(value => averrageScore += value)
+
+        return averrageScore;
     }
 
     render() {
+        const scores = Object.fromEntries(this.getScores(this.state.scores));
+
         return(
             <div>
                 <div>
@@ -70,19 +101,22 @@ class Student extends Component {
                 <p>Класс: {this.state.className}</p>
                 <div className ="container">
                     <div className ="row g-3 p-2">
-                        <table className ="table border bg-light">
+                        <table className ="table table-bordered">
                             <thead className ="thead-dark">
                                 <tr>
-                                    <th scope="col" className ="col-md-1">Предмет</th>
+                                    <th scope="col" className ="col-md-2">Предмет</th>
                                     <th scope="col">Оценки</th>
+                                    <th scope="col" className ="col-md-1">Средний балл</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {Object.entries(this.getScores(this.state.scores)).map((name, score) => 
-                                <tr>
-                                    <th>{name}</th>
-                                    <th>{score}</th>
-                                </tr>)}
+                                {Object.entries(scores).map(item => {
+                                    return <tr>
+                                        <td>{item[0]}</td>
+                                        <td>{this.getStringScore(item[1])}</td>
+                                        <td>{this.getAwerrageScore(item[1])}</td>
+                                    </tr>
+                                })}
                             </tbody>
                         </table>
                     </div>

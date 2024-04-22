@@ -1,6 +1,5 @@
 ﻿using ElectronicJournal.Domain.Entity;
 using ElectronicJournal.Domain.ViewModels;
-using ElectronicJournal.Service.Implementations;
 using ElectronicJournal.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

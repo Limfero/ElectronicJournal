@@ -30,7 +30,7 @@ namespace ElectronicJournal.Service.Implementations
                     {
                         IdStudent = int.Parse(scoreInfo[0]),
                         IdLesson = int.Parse(scoreInfo[1]),
-                        Grade = (Grade)int.Parse(scoreInfo[1])
+                        Grade = (Grade)int.Parse(scoreInfo[2])
                     });
                 }
 
@@ -59,10 +59,10 @@ namespace ElectronicJournal.Service.Implementations
             {
                 var response = _scoreRepository.GetAll().ToList();
 
-                foreach (var score in response)
+                response.ForEach(score =>
                 {
-                    score.Student.Scores = new();
-                }
+                    score.Lesson.Scores = new();
+                });
 
                 if (response == null)
                 {
