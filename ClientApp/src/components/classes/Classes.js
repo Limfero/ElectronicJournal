@@ -4,7 +4,7 @@ import ModalButton from "../ModalBtn";
 import { Button, Form, FormControl, InputGroup, Accordion } from "react-bootstrap";
 import { NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import { getData, postData, deleteData } from "../services/AccessAPI";
+import { getData, postData, deleteData, postDataWithImage } from "../services/AccessAPI";
 
 const URLClass = `/api/classes`;
 const URLStudent = `/api/students`;
@@ -12,6 +12,7 @@ const URLStudent = `/api/students`;
 const Classes = () => {
     const [allClases, setClasses] = useState([]);
     const [allStudents, setStudents] = useState([]);
+    const [file, setFile] = useState()
 
     const getClasses = async () => {
         getData(URLClass + `/getClasses`).then(
@@ -61,16 +62,23 @@ const Classes = () => {
     };
     
     const addStudent = async () => {
+        let formData = new FormData()
+
         const newStudent = {
             firstName: `${document.getElementById('firstName').value}`,
             lastName: `${document.getElementById('lastName').value}`,
             middleName: `${document.getElementById('middleName').value}`,
+            image: file,
             login: `S${1000000000 + (allStudents[allStudents.length - 1]?.id !== undefined ? allStudents[allStudents.length - 1].id : 0)}`,
             password: `${document.getElementById('password').value}`,
             idClass: allClases.find(s => `${s.name}`=== `${document.getElementById('class').value}`).id,
         };
 
-        postData(URLStudent + `/createStudent`, newStudent).then(
+        Object.keys(newStudent).forEach(function (key) {
+            formData.append(key, newStudent[key]);
+        });
+
+        postDataWithImage(URLStudent + `/createStudent`, formData).then(
             (result) =>{
                 if(result){
                     allStudents.push(result);
@@ -103,14 +111,14 @@ const Classes = () => {
                 </div>
             }
             />
-            {allClases.map(x => <ClassItem key={x.id} _class={x} deleteAction={deleteClass} addAction={addStudent} allStudents={allStudents} getClasses={getClasses}/>)}
+            {allClases.map(x => <ClassItem key={x.id} _class={x} deleteAction={deleteClass} addAction={addStudent} allStudents={allStudents} getClasses={getClasses} setFile={setFile}/>)}
         </div>
     )
 }
 
 export default Classes;
 
-const ClassItem = ({_class, deleteAction, addAction, allStudents, getClasses}) => {
+const ClassItem = ({_class, deleteAction, addAction, allStudents, getClasses, setFile}) => {
     return(
         <div style={{backgroundColor: 'whitesmoke', margin: '10px', borderRadius: '10px', padding: '10px'}}>
             <h3 className="mb-3">{_class.name}</h3>
@@ -150,6 +158,10 @@ const ClassItem = ({_class, deleteAction, addAction, allStudents, getClasses}) =
                                     <InputGroup className="mb-3">
                                         <InputGroup.Text>Пароль</InputGroup.Text>
                                         <FormControl id="password" type="text"></FormControl>
+                                    </InputGroup>
+                                    <InputGroup className="mb-3">
+                                        <InputGroup.Text>Аватарка</InputGroup.Text>
+                                        <input className="form-control form-control-sm" id="image" type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} multiple/>
                                     </InputGroup>
                                     <InputGroup className="mb-3">
                                         <InputGroup.Text>Класс</InputGroup.Text>

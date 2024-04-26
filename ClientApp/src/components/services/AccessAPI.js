@@ -72,6 +72,27 @@ export function postData(endPoint, inputObj) {
     });
 }
 
+export function postDataWithImage(endPoint, inputObj) {
+    let token=SessionManager.getToken();
+    let payload = {
+        method: 'POST',
+        headers: {   
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+        body: inputObj
+
+    }
+    return fetch(endPoint, payload)
+    .then(function(response) {
+        return response.json();
+    }).then(function(result) {
+        return result;
+    }).catch(function(error) {
+        console.log(error);
+    });
+}
+
 export function deleteData(endPoint) {
     let token=SessionManager.getToken();
     let payload = {

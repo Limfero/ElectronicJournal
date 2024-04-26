@@ -1,5 +1,4 @@
-﻿using ElectronicJournal.Domain.Enum;
-using ElectronicJournal.Domain.Entity;
+﻿using ElectronicJournal.Domain.Entity;
 
 namespace ElectronicJournal.Domain.ViewModels
 {
@@ -11,7 +10,7 @@ namespace ElectronicJournal.Domain.ViewModels
 
         public string MiddleName { get; set; }
 
-        public IFormFile Image { get; set; }
+        public IFormFile? Image { get; set; }
 
         public string Login { get; set; }
 

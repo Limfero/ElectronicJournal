@@ -36,14 +36,11 @@ namespace ElectronicJournal.Controllers
 
         [HttpPost]
         [Route("createTeacher")]
-        public async Task<IActionResult> Create(TeacherViewModel model)
+        public async Task<Teacher> Create([FromForm]TeacherViewModel model)
         {
             var response = await _teacherService.CreateTeacher(model);
 
-            if (response.StatusCode == Domain.Enum.StatusCode.OK)
-                return Ok(new { description = response.Description });
-
-            return BadRequest(new { description = response.Description });
+            return response.Data;
         }
 
         [HttpDelete]

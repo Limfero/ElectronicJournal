@@ -17,9 +17,9 @@ class Student extends Component {
             firstName: "",
             middleName: "",
             className: "",
+            image: "",
             scores: [],
             allSubject: [],
-            scores: [],
             loading: true
         };
 
@@ -38,6 +38,7 @@ class Student extends Component {
                         middleName: result.middleName,
                         className: result.class.name,
                         scores: result.scores,
+                        image: result.imagePath,
                         loading: false
                     })
                 }
@@ -92,13 +93,17 @@ class Student extends Component {
 
         return(
             <div>
-                <div>
-                    <h2>{this.state.firstName}</h2>
-                    <h2>{this.state.lastName}</h2>
-                    <h2>{this.state.middleName}</h2>{' '}
+                <div className="d-flex flex-row bd-highlight">
+                    <div class="col-md-3">
+                        <img src={this.state.image} class="img-thumbnail" alt="avatar" width={300}/>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h2>{this.state.firstName}</h2>
+                        <h2>{this.state.lastName}</h2>
+                        <h2>{this.state.middleName}</h2>
+                        <p>Класс: {this.state.className}</p>
+                    </div>
                 </div>
-
-                <p>Класс: {this.state.className}</p>
                 <div className ="container">
                     <div className ="row g-3 p-2">
                         <table className ="table table-bordered">

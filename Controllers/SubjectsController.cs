@@ -27,14 +27,11 @@ namespace ElectronicJournal.Controllers
 
         [HttpPost]
         [Route("createSubject")]
-        public async Task<IActionResult> Create(SubjectViewModel model)
+        public async Task<Subject> Create(SubjectViewModel model)
         {
             var response = await _subjectService.CreateSubject(model);
 
-            if (response.StatusCode == Domain.Enum.StatusCode.OK)
-                return Ok(new { description = response.Description });
-
-            return BadRequest(new { description = response.Description });
+            return response.Data;
         }
 
         [HttpDelete]

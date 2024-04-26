@@ -11,9 +11,10 @@ namespace ElectronicJournal.Service.Implementations
 {
     public class TeacherService : ITeacherService
     {
+        private static string s_currentDirectory = Assembly.GetExecutingAssembly().Location;
+
         private readonly ITeacherRepository _teacherRepository;
-        private static string _currentDirectory = Assembly.GetExecutingAssembly().Location;
-        private readonly string _path = _currentDirectory[0.._currentDirectory.IndexOf("ElectronicJournal")] + "ElectronicJournal\\Image\\";
+        private readonly string _path = s_currentDirectory[0..s_currentDirectory.IndexOf("ElectronicJournal")] + "ElectronicJournal\\ClientApp\\public\\image\\";
 
         public TeacherService(ITeacherRepository teacherRepository)
         {
@@ -42,10 +43,10 @@ namespace ElectronicJournal.Service.Implementations
                     Lessons = new(),
                     Login = model.Login,
                     MiddleName = model.MiddleName,
-                    ImagePath = _path + $"{model.Login}.png",
+                    ImagePath = $"image/{model.Login}.png",
                     Password = HashPasswordHelper.HashPassword(model.Password),
-                    Role = (Role)model.Role,                   
-                    Subjects = model.Subjects
+                    Role = (Role)model.Role,
+                    Subjects = new()
                 };
 
                 var response = await _teacherRepository.CreateAsync(teacher);

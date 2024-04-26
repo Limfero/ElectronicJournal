@@ -11,9 +11,10 @@ namespace ElectronicJournal.Service.Implementations
 {
     public class StudentService : IStudentService
     {
+        private static string s_currentDirectory = Assembly.GetExecutingAssembly().Location;
+
         private readonly IStudentRepository _studentRepository;
-        private static string _currentDirectory = Assembly.GetExecutingAssembly().Location;
-        private readonly string _path = _currentDirectory[0.._currentDirectory.IndexOf("ElectronicJournal")] + "ElectronicJournal\\Image\\";
+        private readonly string _path = s_currentDirectory[0..s_currentDirectory.IndexOf("ElectronicJournal")] + "ElectronicJournal\\ClientApp\\public\\image\\";
 
         public StudentService(IStudentRepository studentRepository)
         {
@@ -41,7 +42,7 @@ namespace ElectronicJournal.Service.Implementations
                     LastName = model.LastName,
                     Login = model.Login,
                     MiddleName = model.MiddleName,
-                    ImagePath = _path + $"{model.Login}.png",
+                    ImagePath = $"image/{model.Login}.png",
                     Password = HashPasswordHelper.HashPassword(model.Password),
                     IdClass = model.IdClass
                 };

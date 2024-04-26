@@ -44,16 +44,18 @@ export default class Home extends Component {
 
     render() {
       return(
-          <div>
-              <div className="d-flex justify-content-between">
-              <img src={this.image} class="img-thumbnail" alt="avatar"/>
-                <div>
+          <div className="d-flex justify-content-between">
+              <div className="d-flex flex-row bd-highlight">         
+                <div class="col-md-3">
+                  <img src={this.state.image} class="img-thumbnail" alt="avatar" width={300}/>
+                </div>
+                <div class="flex-grow-1 ms-3">
                   <h2>{this.state.firstName}</h2>
                   <h2>{this.state.lastName}</h2>
                   <h2>{this.state.middleName}</h2>
                 </div>
-                <Button type="button" className="align-self-start btn btn-danger" onClick={(e) => this.logout(e)}>Выход</Button>
               </div>
+                <Button type="button" className="align-self-start btn btn-danger" onClick={(e) => this.logout(e)}>Выход</Button>
           </div>
       );
   }

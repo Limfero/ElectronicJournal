@@ -33,9 +33,7 @@ namespace ElectronicJournal.Controllers
             {
                 var teacher = _teacherService.GetAllTeachers().Data.FirstOrDefault(teacher => teacher.Login == response.UserName);
 
-                if (teacher.Login == "Tadmin" && response.Password == "admin")
-                    user = new();
-                else if (teacher == null || teacher.Password != HashPasswordHelper.HashPassword(response.Password))
+                if (teacher == null || teacher.Password != HashPasswordHelper.HashPassword(response.Password))
                     return Results.Unauthorized();
 
                 user = new UserViewModel { Name = teacher.Login, Id = teacher.Id.ToString(), Role = (int)teacher.Role };
